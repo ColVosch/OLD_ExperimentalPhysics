@@ -1,0 +1,15 @@
+itemGroup.experimentalPhysics=Experimental Physics
+
+container.refiner=Refiner
+container.advancedRefinerInsertionLock=Advanced Refiner Insertion Lock
+
+message.refinerCoreToClose=Advanced Refiner Cores must be at least 3 blocks away from each other
+
+item.itemEnderPearlCore.name=Ender Pearl Core
+item.itemEnderPearlReusable.name=Reusable Ender Pearl
+item.itemGunpowderFuelingCell.name=Gunpowder Fueling Cell
+
+tile.blockRefiner.name=Refiner
+tile.blockAdvancedRefinerCasing.name=Advanced Refiner Casing
+tile.blockAdvancedRefiner.name=Advanced Refiner Core
+tile.blockAdvancedRefinerInsertionLock.name=Advanced Refiner Insertion Lock
