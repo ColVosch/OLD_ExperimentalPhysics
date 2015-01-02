@@ -8,7 +8,7 @@ import experimentalPhysics.items.ModItems;
 import experimentalPhysics.network.PacketController;
 import experimentalPhysics.network.handlers.ISynchronizable;
 import experimentalPhysics.network.packets.PacketSyncRefiner;
-import experimentalPhysics.network.packets.PacketSyncTileEntity;
+import experimentalPhysics.network.packets.PacketCoords;
 
 public class TileEntityRefiner extends TileEntityStoring implements ISynchronizable
 {
@@ -36,7 +36,7 @@ public class TileEntityRefiner extends TileEntityStoring implements ISynchroniza
 		lit = tagCompound.getBoolean("lit");
 	}
 
-	public void synchronize(PacketSyncTileEntity message)
+	public void synchronize(PacketCoords message)
 	{
 		currentProcessingTime = ((PacketSyncRefiner) message).currentProcessingTime;
 		lit = ((PacketSyncRefiner) message).lit;

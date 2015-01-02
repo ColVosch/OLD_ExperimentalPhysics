@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
-public class PacketSyncRefiner extends PacketSyncTileEntity implements IMessage
+public class PacketSyncRefiner extends PacketCoords implements IMessage
 {
 	public int currentProcessingTime;
 	public boolean lit;

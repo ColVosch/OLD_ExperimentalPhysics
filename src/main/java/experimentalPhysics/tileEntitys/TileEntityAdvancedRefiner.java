@@ -100,7 +100,6 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	@Override
 	public void writeToNBT(NBTTagCompound tagCompound)
 	{
-		//TODO add formed, refining speed...
 		super.writeToNBT(tagCompound);
 		tagCompound.setInteger("progress", progress);
 		tagCompound.setBoolean("formed", formed);

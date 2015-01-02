@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
-public class PacketSyncAdvancedRefiner extends PacketSyncTileEntity implements IMessage
+public class PacketSyncAdvancedRefiner extends PacketCoords implements IMessage
 {
 	public boolean formed;
 	public short progress;
