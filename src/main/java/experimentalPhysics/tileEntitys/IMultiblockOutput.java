@@ -2,9 +2,7 @@ package experimentalPhysics.tileEntitys;
 
 import net.minecraft.item.ItemStack;
 
-public interface IMultiblockOutput
+public interface IMultiblockOutput extends IMultiblockInteractor
 {
 	public boolean outputItem(ItemStack item);
-	
-	public int[] getCoords();
 }

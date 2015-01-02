@@ -7,9 +7,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
+
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import experimentalPhysics.ExperimentalPhysics;
 
 public class ItemEnderPearlReusable extends Item
@@ -21,7 +23,7 @@ public class ItemEnderPearlReusable extends Item
 	public ItemEnderPearlReusable()
 	{
 		setUnlocalizedName(name);
-		setTextureName(ExperimentalPhysics.getMainTextureFolder()+":enderPearlReusable");
+		setTextureName(ExperimentalPhysics.MODID+":enderPearlReusable");
 		setMaxStackSize(1);
 		setMaxDamage(8);
 		GameRegistry.registerItem(this, name);
@@ -35,7 +37,7 @@ public class ItemEnderPearlReusable extends Item
  
         for (int i = 0; i < icons.length; i++)
         {
-            icons[i] = par1IconRegister.registerIcon(ExperimentalPhysics.getMainTextureFolder() + ":" + name + (i + 1));
+            icons[i] = par1IconRegister.registerIcon(ExperimentalPhysics.MODID + ":" + name + (i + 1));
         }
     }
 	

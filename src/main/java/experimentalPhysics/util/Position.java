@@ -1,8 +1,13 @@
 package experimentalPhysics.util;
 
+import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 
+/**A data object storing a set of three integer coordinates
+ * @author ColVosch
+ *
+ */
 public class Position
 {
 	public int x;
@@ -18,19 +23,27 @@ public class Position
 	
 	public Position(int[] coords)
 	{
-		this.x = coords[0];
-		this.y = coords[1];
-		this.z = coords[2];
-	}
-	
-	public TileEntity getTileEntityFromPosition(IBlockAccess world)
-	{
-		return world.getTileEntity(x, y, z);
+		this(coords[0], coords[1], coords[2]);
 	}
 	
 	public int[] toIntArray()
 	{
 		int[] coords = {x, y, z};
 		return coords;
+	}
+
+	public TileEntity getTileEntity(IBlockAccess world)
+	{
+		return world.getTileEntity(x, y, z);
+	}
+	
+	public Block getBlock(IBlockAccess world)
+	{
+		return world.getBlock(x, y, z);
+	}
+	
+	public int getMeta(IBlockAccess world)
+	{
+		return world.getBlockMetadata(x, y, z);
 	}
 }

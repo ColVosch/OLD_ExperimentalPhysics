@@ -1,8 +1,9 @@
 package experimentalPhysics.blocks;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.world.IBlockAccess;
+
 import cpw.mods.fml.common.registry.GameRegistry;
+
 import experimentalPhysics.ExperimentalPhysics;
 
 public class BlockAdvancedRefinerCasing extends BlockAdvancedRefinerPart
@@ -13,28 +14,23 @@ public class BlockAdvancedRefinerCasing extends BlockAdvancedRefinerPart
 	{
 		super();
 		setBlockName(name);
-		setBlockTextureName(ExperimentalPhysics.getMainTextureFolder() + ":advancedRefinerCasingFull");
+		setBlockTextureName(ExperimentalPhysics.MODID + ":advancedRefinerCasingFull");
 		GameRegistry.registerBlock(this, name);
 	}
 
 	@Override
 	public void registerBlockIcons(IIconRegister iconRegister)
 	{
-		icons[3] =  iconRegister.registerIcon(ExperimentalPhysics.getMainTextureFolder() + ":advancedRefinerCasingUpLeft");
-		icons[7] =  iconRegister.registerIcon(ExperimentalPhysics.getMainTextureFolder() + ":advancedRefinerCasingUp");
-		icons[6] =  iconRegister.registerIcon(ExperimentalPhysics.getMainTextureFolder() + ":advancedRefinerCasingUpRight");
-		icons[11] = iconRegister.registerIcon(ExperimentalPhysics.getMainTextureFolder() + ":advancedRefinerCasingLeft");
-		icons[15] = iconRegister.registerIcon(ExperimentalPhysics.getMainTextureFolder() + ":advancedRefinerCasingMiddle");
-		icons[14] = iconRegister.registerIcon(ExperimentalPhysics.getMainTextureFolder() + ":advancedRefinerCasingRight");
-		icons[9] =  iconRegister.registerIcon(ExperimentalPhysics.getMainTextureFolder() + ":advancedRefinerCasingDownLeft");
-		icons[13] = iconRegister.registerIcon(ExperimentalPhysics.getMainTextureFolder() + ":advancedRefinerCasingDown");
-		icons[12] = iconRegister.registerIcon(ExperimentalPhysics.getMainTextureFolder() + ":advancedRefinerCasingDownRight");	
-		icons[0] =  iconRegister.registerIcon(ExperimentalPhysics.getMainTextureFolder() + ":advancedRefinerCasingFull");
+		icons[3] =  iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerCasingUpLeft");
+		icons[7] =  iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerCasingUp");
+		icons[6] =  iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerCasingUpRight");
+		icons[11] = iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerCasingLeft");
+		icons[15] = iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerCasingMiddle");
+		icons[14] = iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerCasingRight");
+		icons[9] =  iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerCasingDownLeft");
+		icons[13] = iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerCasingDown");
+		icons[12] = iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerCasingDownRight");	
+		icons[0] =  iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerCasingFull");
 	}
 
-	@Override
-	public boolean canTextureConnect(IBlockAccess access, int x, int y, int z, int xConnector, int yConnector, int zConnector)
-	{
-		return super.canTextureConnect(access, x, y, z, xConnector, yConnector, zConnector);
-	}
 }
