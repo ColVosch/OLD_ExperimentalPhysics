@@ -5,19 +5,19 @@ import io.netty.buffer.ByteBuf;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
 //TODO generalize and rename
-/**This class is used to synchronize a TileEntity with the server. It implements {@link IMessage} and stores the coordinates of the TileEntity to synchronize.
+/**This class implements {@link IMessage} and stores a set of coordinates.
  * @author ColVosch
  *
  */
-public abstract class PacketSyncTileEntity implements IMessage
+public abstract class PacketCoords implements IMessage
 {
 	public int x;
 	public int y;
 	public int z;
 	
-	public PacketSyncTileEntity() {}
+	public PacketCoords() {}
 	
-	public PacketSyncTileEntity(int x, int y, int z)
+	public PacketCoords(int x, int y, int z)
 	{
 		this.x = x;
 		this.y = y;
