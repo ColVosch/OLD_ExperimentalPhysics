@@ -1,14 +1,26 @@
-package experimentalPhysics;
+package experimentalPhysics.guis;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class ExperimentalPhysicsCreativeTab extends CreativeTabs
 {
-
+	private static ExperimentalPhysicsCreativeTab instance;
+	
+	public static ExperimentalPhysicsCreativeTab instance()
+	{
+		if (instance == null)
+		{
+			instance = new ExperimentalPhysicsCreativeTab();
+		}
+		return instance;
+	}
+	
+	
 	public ExperimentalPhysicsCreativeTab()
 	{
 		super("experimentalPhysics");
@@ -20,5 +32,4 @@ public class ExperimentalPhysicsCreativeTab extends CreativeTabs
 	{
 		return Items.ender_pearl;
 	}
-
 }

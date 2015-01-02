@@ -1,13 +1,14 @@
 package experimentalPhysics.guis;
 
+import java.awt.Color;
+
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
-
-import org.lwjgl.opengl.GL11;
 
 import experimentalPhysics.ExperimentalPhysics;
 import experimentalPhysics.containers.ContainerRefiner;
@@ -25,14 +26,14 @@ public class GuiRefiner extends GuiContainer
 	
 	protected void drawGuiContainerForegroundLayer(int par1, int par2)
 	{
-		this.drawString(Minecraft.getMinecraft().fontRenderer, StatCollector.translateToLocal("container.inventory"), 7, 73, 16777215); 
-		this.drawString(Minecraft.getMinecraft().fontRenderer, StatCollector.translateToLocal("container.refiner"), 7, 7, 16777215);
+		this.drawString(Minecraft.getMinecraft().fontRenderer, StatCollector.translateToLocal("container.inventory"), 7, 73, Color.WHITE.getRGB()); 
+		this.drawString(Minecraft.getMinecraft().fontRenderer, StatCollector.translateToLocal("container.refiner"), 7, 7, Color.WHITE.getRGB());
 	}
 	
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
 	{
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.renderEngine.bindTexture(new ResourceLocation(ExperimentalPhysics.getMainTextureFolder()+":textures/guis/GuiRefiner.png"));
+		mc.renderEngine.bindTexture(new ResourceLocation(ExperimentalPhysics.MODID + ":textures/guis/GuiRefiner.png"));
 		int j = (width - xSize) / 2;
 		int k = (height - ySize) / 2;
 		drawTexturedModalRect(j, k, 0, 0, xSize, ySize);

@@ -3,7 +3,11 @@ package experimentalPhysics.guis;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+
 import cpw.mods.fml.common.network.IGuiHandler;
+import cpw.mods.fml.common.network.NetworkRegistry;
+
+import experimentalPhysics.ExperimentalPhysics;
 import experimentalPhysics.containers.ContainerAdvancedRefinerInsertionLock;
 import experimentalPhysics.containers.ContainerRefiner;
 import experimentalPhysics.tileEntitys.TileEntityAdvancedRefinerInsertionLock;
@@ -11,17 +15,25 @@ import experimentalPhysics.tileEntitys.TileEntityRefiner;
 
 public class GuiHandler implements IGuiHandler
 {
+	public static final int ID_REFINER = 0;
+	public static final int ID_ADVANCED_REFINER_INSERTION_LOCK = 1;
+	
+	public static void register()
+	{
+		NetworkRegistry.INSTANCE.registerGuiHandler(ExperimentalPhysics.instance, new GuiHandler());
+	}
+	
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
 	{
 		TileEntity tile = world.getTileEntity(x, y, z);
 		switch(ID)
 		{
-			case 0:
+			case ID_REFINER:
 			{
 				return new ContainerRefiner(player, (TileEntityRefiner) tile);
 			}
-			case 1:
+			case ID_ADVANCED_REFINER_INSERTION_LOCK:
 			{
 				return new ContainerAdvancedRefinerInsertionLock(player, (TileEntityAdvancedRefinerInsertionLock) tile);
 			}
@@ -38,11 +50,11 @@ public class GuiHandler implements IGuiHandler
 		TileEntity tile = world.getTileEntity(x, y, z);
 		switch(ID)
 		{
-			case 0:
+			case ID_REFINER:
 			{
 				return new GuiRefiner(player, (TileEntityRefiner) tile);
 			}
-			case 1:
+			case ID_ADVANCED_REFINER_INSERTION_LOCK:
 			{
 				return new GuiAdvancedRefinerInsertionLock(player, (TileEntityAdvancedRefinerInsertionLock) tile);
 			}

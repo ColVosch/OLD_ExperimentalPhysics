@@ -7,11 +7,6 @@ import net.minecraft.item.ItemStack;
 public class TileEntityAdvancedRefinerInsertionLock extends TileEntityStoring implements IMultiblockInput, IMultiblockOutput
 {
 	private TileEntityAdvancedRefiner refiner;
-	
-	public TileEntityAdvancedRefinerInsertionLock()
-	{
-		super();
-	}
 
 	@Override
 	public String getInventoryName()
@@ -25,12 +20,6 @@ public class TileEntityAdvancedRefinerInsertionLock extends TileEntityStoring im
 		inventory = new ItemStack[1];
 	}
 
-	@Override
-	public void openInventory() {}
-
-	@Override
-	public void closeInventory() {}
-	
 	@Override
 	public int[] getCoords()
 	{
@@ -66,7 +55,7 @@ public class TileEntityAdvancedRefinerInsertionLock extends TileEntityStoring im
 	@Override
 	public boolean outputItem(ItemStack item)
 	{
-		if (item != null)
+		if (item != null && !worldObj.isRemote)
 		{
 			worldObj.spawnEntityInWorld(new EntityItem(worldObj, xCoord, yCoord, zCoord, item));
 		}

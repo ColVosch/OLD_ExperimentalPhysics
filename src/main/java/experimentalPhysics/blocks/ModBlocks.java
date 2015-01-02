@@ -6,6 +6,8 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 
+import experimentalPhysics.guis.ExperimentalPhysicsCreativeTab;
+
 public final class ModBlocks
 {
 	
@@ -14,20 +16,25 @@ public final class ModBlocks
 	public static Block advancedRefinerCasing;
 	public static Block advancedRefinerInsertionLock;
 	
-	public static List<Block> modBlocks = new ArrayList<Block>();
-	
-	public static void init(CreativeTabs expPhysTab)
+	public static void register()
 	{
+		List<Block> modBlocks = new ArrayList<Block>();
 		modBlocks.add(refiner = new BlockRefiner());
 		modBlocks.add(advancedRefiner = new BlockAdvancedRefiner());
 		modBlocks.add(advancedRefinerCasing = new BlockAdvancedRefinerCasing());
 		modBlocks.add(advancedRefinerInsertionLock = new BlockAdvancedRefinerInsertionLock());
 		
 
-		fillCreativeTab(expPhysTab, modBlocks);		
+		fillCreativeTab(ExperimentalPhysicsCreativeTab.instance(), modBlocks);		
 	}
 	
 	
+	/**Adds the given items to the given CreativeTab
+	 * @param tab
+	 * 		Tab the items should be added to
+	 * @param list
+	 * 		List of items to add
+	 */
 	private static void fillCreativeTab(CreativeTabs tab, List<Block> list)
     {
     	for(Block i : list)

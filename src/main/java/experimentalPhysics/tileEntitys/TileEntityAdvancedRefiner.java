@@ -4,101 +4,61 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.FMLLog;
-import net.minecraft.client.Minecraft;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import experimentalPhysics.ExperimentalPhysics;
+
 import experimentalPhysics.items.ModItems;
-import experimentalPhysics.network.PacketLoadInteractor;
-import experimentalPhysics.network.Packets;
+import experimentalPhysics.network.PacketController;
+import experimentalPhysics.network.handlers.ISynchronizable;
+import experimentalPhysics.network.packets.PacketLoadInteractor;
+import experimentalPhysics.network.packets.PacketSyncAdvancedRefiner;
 import experimentalPhysics.util.Position;
 
-public class TileEntityAdvancedRefiner extends TileEntityStoring
+public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISynchronizable<PacketSyncAdvancedRefiner>
 {
 	public static final int REQUIRED_PROGRESS = 10000;
+	public static final String NAME = "tileEntityAdvancedRefiner";
 	
-	private boolean formed;
-	private int progress;
-	private int refiningSpeed;
-	private float heat;
-	private float minHeat;
-	private float maxHeat;
-	private float dustChance;
-	private List<IMultiblockInput> inputs;
-	private List<Position> inputPositions;
-	private List<IMultiblockOutput> outputs;
-	private List<Position> outputPositions;
-	private List<IAdvancedRefinerModifier> modifiers;
-	private List<Position> modifierPositions;
+	private static final int INPUT = 0;
+	private static final int OUTPUT_PRIMARY = 1;
+	private static final int OUTPUT_SECONDARY = 2;
+	
+	private boolean formed = false;
+	private short progress = -1;
+	private short refiningSpeed = 100;
+	private float heat = 350;
+	private short minHeat = 200;
+	private short maxHeat = 500;
+	private float dustChance = 0f;
+	private List<IMultiblockInput> inputs = new ArrayList<IMultiblockInput>();;
+	private List<Position> inputPositions = new ArrayList<Position>();;
+	private List<IMultiblockOutput> outputs = new ArrayList<IMultiblockOutput>();;
+	private List<Position> outputPositions = new ArrayList<Position>();;
+	private List<IAdvancedRefinerModifier> modifiers = new ArrayList<IAdvancedRefinerModifier>();;
+	private List<Position> modifierPositions = new ArrayList<Position>();;
 	private Random rndGen = new Random();
 
 	
-	public TileEntityAdvancedRefiner()
-	{
-		super();
-		progress = -1;
-		inputs = new ArrayList<IMultiblockInput>();
-		outputs = new ArrayList<IMultiblockOutput>();
-		inputPositions = new ArrayList<Position>();
-		outputPositions = new ArrayList<Position>();
-		modifierPositions = new ArrayList<Position>();
-	}
-	
 	@Override
-	public void writeToNBT(NBTTagCompound tagCompound)
+	protected void initInvenory()
 	{
-		super.writeToNBT(tagCompound);
-		tagCompound.setInteger("progress", progress);
-		
-		NBTTagCompound inputCoords;
-		if (inputs != null)
-		{
-			inputCoords = new NBTTagCompound();
-			for (int i = 0; i < inputPositions.size(); i++)
-			{
-				inputCoords.setIntArray(Integer.toString(i), inputPositions.get(i).toIntArray());
-			}
-			tagCompound.setTag("inputCoords", inputCoords);
-		}
-		if (outputs != null)
-		{
-			NBTTagCompound outputCoords = new NBTTagCompound();
-			for (int i = 0; i < outputPositions.size(); i++)
-			{
-				outputCoords.setIntArray(Integer.toString(i), outputPositions.get(i).toIntArray());
-			}
-			tagCompound.setTag("outputCoords", outputCoords);
-		}
-		if (modifiers != null)
-		{
-			NBTTagCompound modifierCoords = new NBTTagCompound();
-			for (int i = 0; i < modifierPositions.size(); i++)
-			{
-				modifierCoords.setIntArray(Integer.toString(i), modifierPositions.get(i).toIntArray());
-			}
-			tagCompound.setTag("modifierCoords", modifierCoords);
-		}
-		System.out.println(tagCompound);
+		inventory = new ItemStack[3];
 	}
 	
 	@Override
 	public void readFromNBT(NBTTagCompound tagCompound)
 	{
 		super.readFromNBT(tagCompound);
-		inputPositions = new ArrayList<Position>();
-		outputPositions = new ArrayList<Position>();
-		modifierPositions = new ArrayList<Position>();
-		progress = tagCompound.getInteger("progress");
-		initPositionList(tagCompound.getCompoundTag("inputCoords"), inputPositions);
-		initPositionList(tagCompound.getCompoundTag("outputCoords"), outputPositions);
-		initPositionList(tagCompound.getCompoundTag("modifierCoords"), modifierPositions);
+		progress = tagCompound.getShort("progress");
+		formed = tagCompound.getBoolean("formed");
+		
+		readPositionListFromNBT(tagCompound.getCompoundTag("inputCoords"), inputPositions);
+		readPositionListFromNBT(tagCompound.getCompoundTag("outputCoords"), outputPositions);
+		readPositionListFromNBT(tagCompound.getCompoundTag("modifierCoords"), modifierPositions);
 	}
 	
-	private void initPositionList(NBTTagCompound coordCompound, List<Position> posList)
+	private void readPositionListFromNBT(NBTTagCompound coordCompound, List<Position> posList)
 	{
 		boolean shouldContinue = true;
 		for (int i = 0; shouldContinue && i < 27; i++)
@@ -117,110 +77,101 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring
 	
 	private void initInteractorsFromCoords()
 	{
-		if (!worldObj.isRemote)
-		{
-			System.out.println("Interactors from coords. Side: server");
-		}
-		else
-		{
-			System.out.println("Interactors from coords. Side: client");
-		}
+		assert !worldObj.isRemote : "[TileEntityAdvancedRefiner] [initInteractorsFromCoords] This should only be called on server side!";
 		for (Position p : inputPositions)
 		{
 			inputs.add((IMultiblockInput) worldObj.getTileEntity(p.x, p.y, p.z));
-			Packets.network.sendToAll(new PacketLoadInteractor(xCoord, yCoord, zCoord, p.x, p.y, p.z));
+			PacketController.getNetworkWrapper().sendToAll(new PacketLoadInteractor(xCoord, yCoord, zCoord, p.x, p.y, p.z));
 		}
 		for (Position p : outputPositions)
 		{
 			outputs.add((IMultiblockOutput) worldObj.getTileEntity(p.x, p.y, p.z));
-			Packets.network.sendToAll(new PacketLoadInteractor(xCoord, yCoord, zCoord, p.x, p.y, p.z));
+			PacketController.getNetworkWrapper().sendToAll(new PacketLoadInteractor(xCoord, yCoord, zCoord, p.x, p.y, p.z));
 		}			
 		for (Position p : modifierPositions)
 		{
 			modifiers.add((IAdvancedRefinerModifier) worldObj.getTileEntity(p.x, p.y, p.z));
-			Packets.network.sendToAll(new PacketLoadInteractor(xCoord, yCoord, zCoord, p.x, p.y, p.z));
-		}	
-		
+			PacketController.getNetworkWrapper().sendToAll(new PacketLoadInteractor(xCoord, yCoord, zCoord, p.x, p.y, p.z));
+		}
 	}
 	
 	
 
+	@Override
+	public void writeToNBT(NBTTagCompound tagCompound)
+	{
+		//TODO add formed, refining speed...
+		super.writeToNBT(tagCompound);
+		tagCompound.setInteger("progress", progress);
+		tagCompound.setBoolean("formed", formed);
+		
+		if (inputs != null)
+		{
+			tagCompound.setTag("inputCoords", writePositionListToNBT(inputPositions));
+		}
+		if (outputs != null)
+		{
+			tagCompound.setTag("outputCoords", writePositionListToNBT(outputPositions));
+		}
+		if (modifiers != null)
+		{
+			tagCompound.setTag("modifierCoords", writePositionListToNBT(modifierPositions));
+		}
+	}
+	
+	private NBTTagCompound writePositionListToNBT(List<Position> posList)
+	{
+		NBTTagCompound coordCompound = new NBTTagCompound();
+		for (int i = 0; i < posList.size(); i++)
+		{
+			coordCompound.setIntArray(Integer.toString(i), posList.get(i).toIntArray());
+		}
+		return coordCompound;
+	}
+	
 	@Override
 	public String getInventoryName()
 	{
 		return "container.refinerAdvanced";
 	}
 	
-
-	@Override
-	protected void initInvenory()
-	{
-		/* 
-		 * [0] = input
-		 * [1] = outpuMain
-		 * [2] = outputSecondary
-		 */
-		inventory = new ItemStack[3];
-	}
 	
-
 	public void form()
 	{
-		computeAttributes();
+		formed = true;
 	}
 	
-
 	public void registerInput(IMultiblockInput input)
 	{
 		if (!inputs.contains(input))
 		{
 			inputs.add(input);
-			Position position = new Position(input.getCoords());
-			boolean contains = false;
-			for (Position p : inputPositions)
-			{
-				if (contains)
-				{
-					continue;
-				}
-				if (p.equals(position))
-				{
-					contains = true;
-				}
-			}
-			if (contains)
-			{
-				inputPositions.add(new Position(input.getCoords()));
-			}
+			inputPositions.add(new Position(input.getCoords()));
+		}
+	}
+		
+	public void registerOutput(IMultiblockOutput output)
+	{
+		if (!outputs.contains(output))
+		{
+			outputs.add(output);
+			outputPositions.add(new Position(output.getCoords()));
+			outputAllItems();
 		}
 	}
 	
-	
-	public void registerOutput(IMultiblockOutput output)
-	{
-		outputs.add(output);
-		outputPositions.add(new Position (output.getCoords()));
-	}
-	
-	
 	public void registerModifyer(IAdvancedRefinerModifier modifier)
 	{
-		modifiers.add(modifier);
-		modifierPositions.add(new Position(modifier.getCoords()));
-		computeAttributes();
+		if (!modifiers.contains(modifier))
+		{
+			modifiers.add(modifier);
+			modifierPositions.add(new Position(modifier.getCoords()));
+			computeAttributes();
+		}
 	}
-	
-	
+		
 	private void computeAttributes()
 	{
-		refiningSpeed = 100;
-		
-		minHeat = 200;
-		maxHeat = 500;
-		heat = 350;
-		
-		dustChance = 0F;
-		
 		if (modifiers != null)
 		{
 			for (IAdvancedRefinerModifier modifier : modifiers)
@@ -233,7 +184,7 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring
 		}
 	}
 	
-
+	
 	@Override
 	public void updateEntity()
 	{
@@ -248,26 +199,32 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring
 		if (progress >= 0 && progress < REQUIRED_PROGRESS)
 		{
 			progress += refiningSpeed;
+			if (progress % 20 == 0)
+			{
+				System.out.println("Progress: " + progress);
+			}
 		}
 		
 		if (progress >= REQUIRED_PROGRESS)
 		{
+			if (!worldObj.isRemote)
+			{
+				PacketController.getNetworkWrapper().sendToAll(new PacketSyncAdvancedRefiner(xCoord, yCoord, zCoord, formed, progress, refiningSpeed, heat, minHeat, maxHeat, dustChance));
+			}
 			process();
 			progress = -1;
 		}	
 	}
-	
-	
+		
 	private boolean canStartRefining()
 	{
-		if (inventory[0] == null)
+		if (inventory[INPUT] == null)
 		{
 			inputItem();
 		}
-		return inventory[0] != null && (inventory[1] == null || inventory[1].stackSize < inventory[1].getMaxStackSize()) && (inventory[2] == null || inventory[2].stackSize < inventory[2].getMaxStackSize()) && heat <= maxHeat && heat >= minHeat;
+		return inventory[INPUT] != null && formed && (inventory[OUTPUT_PRIMARY] == null || inventory[OUTPUT_PRIMARY].stackSize < inventory[OUTPUT_PRIMARY].getMaxStackSize()) && (inventory[OUTPUT_SECONDARY] == null || inventory[OUTPUT_SECONDARY].stackSize < inventory[OUTPUT_SECONDARY].getMaxStackSize()) && heat <= maxHeat && heat >= minHeat;
 	}
 	
-
 	private void inputItem()
 	{
 		if (!inputs.isEmpty())
@@ -275,9 +232,9 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring
 			for (IMultiblockInput input : inputs)
 			{
 				ItemStack inputStack = input.inputItem(Items.ender_pearl);
-				if (inputStack != null && inventory[0] == null)
+				if (inputStack != null && inventory[INPUT] == null)
 				{
-					inventory[0] = inputStack;
+					inventory[INPUT] = inputStack;
 					return;
 				}
 			}
@@ -288,63 +245,98 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring
 		}
 	}
 	
-
 	private void process()
 	{
-		decrStackSize(0, 1);
+		decrStackSize(INPUT, 1);
 		
-		if (inventory[1] == null)
+		if (inventory[OUTPUT_PRIMARY] == null)
 		{
-			inventory[1] = new ItemStack(ModItems.enderPearlCore);
+			inventory[OUTPUT_PRIMARY] = new ItemStack(ModItems.enderPearlCore);
 		}
 		else
 		{
-			inventory[1].stackSize ++;
+			inventory[OUTPUT_PRIMARY].stackSize ++;
 		}
 		
+		int dustAmount = 0;
+		float dustChance = this.dustChance;
+		while (dustChance > 1)
+		{
+			dustAmount ++;
+			dustChance --;
+		}
 		if (rndGen.nextFloat() <= dustChance)
 		{
-			if (inventory[2] == null)
-			{
-				inventory[2] = new ItemStack(Items.cookie);
-			}
-			else
-			{
-				inventory[2].stackSize ++;
-			}		
+			dustAmount ++;
+		}
+		
+		if (inventory[OUTPUT_SECONDARY] == null)
+		{
+			inventory[OUTPUT_SECONDARY] = new ItemStack(Items.cookie, dustAmount);
+		}
+		else if (inventory[OUTPUT_SECONDARY].stackSize + dustAmount < inventory[OUTPUT_SECONDARY].getMaxStackSize())
+		{
+			inventory[OUTPUT_SECONDARY].stackSize += dustAmount;
+		}		
+		else
+		{
+			inventory[OUTPUT_SECONDARY].stackSize = inventory[OUTPUT_SECONDARY].getMaxStackSize();
 		}
 		outputAllItems();
 	}
 	
-
 	private void outputAllItems()
 	{
-		if (outputItem(inventory[1]))
+		if (outputItem(inventory[OUTPUT_PRIMARY]))
 		{
-			inventory[1] = null;
+			inventory[OUTPUT_PRIMARY] = null;
 		}
-		if (outputItem(inventory[2]))
+		if (outputItem(inventory[OUTPUT_SECONDARY]))
 		{
-			inventory[2] = null;
+			inventory[OUTPUT_SECONDARY] = null;
 		}
 	}
 	
 	private boolean outputItem(ItemStack outputStack)
 	{
-		if (!outputs.isEmpty())
-		{
-			for (IMultiblockOutput output : outputs)
-			{
-				if (output.outputItem(outputStack))
-				{
-					return true;
-				}
-			}
-		}
-		else if (!worldObj.isRemote)
+		if (outputs.isEmpty() && !worldObj.isRemote)
 		{
 			initInteractorsFromCoords();
 		}
+		for (IMultiblockOutput output : outputs)
+		{
+			if (output.outputItem(outputStack))
+			{
+				return true;
+			}
+		}
 		return false;
 	}
+
+	
+	public void unForm()
+	{
+		formed = false;
+		progress = -1;
+		inputs.clear();
+		inputPositions.clear();
+		outputs.clear();
+		outputPositions.clear();
+		modifiers.clear();
+		modifierPositions.clear();
+	}
+
+	public void synchronize(PacketSyncAdvancedRefiner message)
+	{
+		System.out.println("synchronizing advancedRefiner");
+		formed = message.formed;
+		progress = message.progress;
+		refiningSpeed = message.refiningSpeed;
+		heat = message.heat;
+		minHeat = message.minHeat;
+		maxHeat = message.maxHeat;
+		dustChance = message.dustChance;	
+		System.out.println(message);
+	}
+
 }

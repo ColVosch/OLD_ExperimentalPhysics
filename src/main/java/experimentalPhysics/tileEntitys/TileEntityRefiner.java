@@ -1,27 +1,26 @@
 package experimentalPhysics.tileEntitys;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import experimentalPhysics.items.ModItems;
 
-public class TileEntityRefiner extends TileEntityStoring
+import experimentalPhysics.items.ModItems;
+import experimentalPhysics.network.PacketController;
+import experimentalPhysics.network.handlers.ISynchronizable;
+import experimentalPhysics.network.packets.PacketSyncRefiner;
+import experimentalPhysics.network.packets.PacketSyncTileEntity;
+
+public class TileEntityRefiner extends TileEntityStoring implements ISynchronizable
 {
-	private static final int PROCESSING_TIME = 1000;
+	public static final int PROCESSING_TIME = 300;
+	
+	private static final int FUEL = 0;
+	private static final int INPUT = 1;
+	private static final int OUTPUT = 2;	
+	
 	private int currentProcessingTime = 0;
 	private boolean lit = false;
 	
-	public TileEntityRefiner()
-	{
-		super();	
-	}
-	
-	/** inventory[0] = fuel<br>
-	 *  inventory[1] = input<br>
-	 *  inventory[2] = output<br>
-	 * @see experimentalPhysics.tileEntitys.TileEntityStoring#initInvenory()
-	 */
 	@Override
 	protected void initInvenory()
 	{
@@ -29,20 +28,27 @@ public class TileEntityRefiner extends TileEntityStoring
 	}
 
 	@Override
+	public void readFromNBT(NBTTagCompound tagCompound)
+	{
+		//TODO not synchronizing properly after loading. something like a 'onWorldLoadet' event would be required to fix this
+		super.readFromNBT(tagCompound);
+		currentProcessingTime = tagCompound.getInteger("currentProcessingTime");
+		lit = tagCompound.getBoolean("lit");
+	}
+
+	public void synchronize(PacketSyncTileEntity message)
+	{
+		currentProcessingTime = ((PacketSyncRefiner) message).currentProcessingTime;
+		lit = ((PacketSyncRefiner) message).lit;
+	}
+	
+	@Override
 	public void writeToNBT(NBTTagCompound tagCompound)
 	{
 		super.writeToNBT(tagCompound);
-		tagCompound.setByte("currentProcessingTime", (byte) currentProcessingTime);
+		tagCompound.setInteger("currentProcessingTime", currentProcessingTime);
 		tagCompound.setBoolean("lit", lit);
 	}
-
-	@Override
-	public void readFromNBT(NBTTagCompound tagCompound)
-	{
-		super.readFromNBT(tagCompound);
-		currentProcessingTime = tagCompound.getByte("currentProcessingTime");
-		lit = tagCompound.getBoolean("lit");
-	}		
 
 	@Override
 	public String getInventoryName()
@@ -50,28 +56,6 @@ public class TileEntityRefiner extends TileEntityStoring
 		return "container.refiner";
 	}
 
-	@Override
-	public boolean isUseableByPlayer(EntityPlayer player)
-	{
-		return true;
-	}
-
-	@Override
-	public void openInventory() {}
-
-	@Override
-	public void closeInventory() {}
-
-	public int getProgressScaled(int factor)
-	{
-		 return (currentProcessingTime * factor) / PROCESSING_TIME;
-	}
-	
-	public boolean isLit()
-	{
-		return lit;	
-	}
-	
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack stack)
 	{		
@@ -86,6 +70,17 @@ public class TileEntityRefiner extends TileEntityStoring
 		}
 	}
 
+	public int getProgressScaled(int factor)
+	{
+		 return (currentProcessingTime * factor) / PROCESSING_TIME;
+	}
+	
+	public boolean isLit()
+	{
+		return lit;	
+	}
+
+	
 	@Override
 	public void updateEntity()
 	{
@@ -102,6 +97,7 @@ public class TileEntityRefiner extends TileEntityStoring
 			if (canContiniueRefining())
 			{
 				currentProcessingTime ++;
+				System.out.println((worldObj.isRemote ? "Client: " : "Server: ") + currentProcessingTime);
 			}
 			else
 			{
@@ -112,6 +108,10 @@ public class TileEntityRefiner extends TileEntityStoring
 		
 		if (currentProcessingTime >= PROCESSING_TIME)
 		{
+			if (!worldObj.isRemote)
+			{
+				PacketController.getNetworkWrapper().sendToAll(new PacketSyncRefiner(currentProcessingTime, lit, xCoord, yCoord, zCoord));
+			}
 			process();
 			currentProcessingTime = -1;
 		}	
@@ -119,7 +119,7 @@ public class TileEntityRefiner extends TileEntityStoring
 
 	private boolean tryStartRefining()
 	{
-		if ((inventory[1] != null && inventory[1].getItem() == Items.ender_pearl) && (inventory[2] == null || (inventory[2].getItem() == ModItems.enderPearlCore && inventory[2].stackSize < getInventoryStackLimit() && !isLit())))
+		if ((inventory[INPUT] != null && inventory[INPUT].getItem() == Items.ender_pearl) && (inventory[OUTPUT] == null || (inventory[OUTPUT].getItem() == ModItems.enderPearlCore && inventory[OUTPUT].stackSize < getInventoryStackLimit() && !isLit())))
 		{
 			tryLight();
 		}
@@ -128,7 +128,24 @@ public class TileEntityRefiner extends TileEntityStoring
 
 	private boolean canContiniueRefining()
 	{
-		return (inventory[1] != null && inventory[1].getItem() == Items.ender_pearl);
+		return (inventory[INPUT] != null && inventory[INPUT].getItem() == Items.ender_pearl);
+	}
+
+	private void tryLight()
+	{
+		if (inventory[FUEL] != null && inventory[FUEL].getItem() == Items.flint_and_steel)
+		{
+			inventory[FUEL].attemptDamageItem(1, worldObj.rand);
+			if (inventory[FUEL].getItemDamage() > inventory[FUEL].getMaxDamage())
+			{
+				inventory[FUEL] = null;
+			}
+			lit = true;
+		}
+		else
+		{
+			lit = false;
+		}
 	}
 
 	private void process()
@@ -136,31 +153,14 @@ public class TileEntityRefiner extends TileEntityStoring
 		if (canContiniueRefining())
 		{
 			decrStackSize(1, 1);
-			if (inventory[2] == null)
+			if (inventory[OUTPUT] == null)
 			{
-				inventory[2] = new ItemStack(ModItems.enderPearlCore);
+				inventory[OUTPUT] = new ItemStack(ModItems.enderPearlCore);
 			}
 			else
 			{
-				inventory[2].stackSize ++;
+				inventory[OUTPUT].stackSize ++;
 			}
-			lit = false;
-		}
-	}
-
-	private void tryLight()
-	{
-		if (inventory[0] != null && inventory[0].getItem() == Items.flint_and_steel)
-		{
-			inventory[0].attemptDamageItem(1, worldObj.rand);
-			if (inventory[0].getItemDamage() > inventory[0].getMaxDamage())
-			{
-				inventory[0] = null;
-			}
-			lit = true;
-		}
-		else
-		{
 			lit = false;
 		}
 	}

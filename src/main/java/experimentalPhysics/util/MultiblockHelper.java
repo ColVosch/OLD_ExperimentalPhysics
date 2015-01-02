@@ -8,46 +8,46 @@ import net.minecraft.world.World;
 
 public class MultiblockHelper
 {
-	public static List<int []> getBlockCoordsInCube(World world, int x, int y, int z, int cubeRadius)
+	/**Returns a list of all the positions inside a defined cube.
+	 * @param x coordinate of the cubes center
+	 * @param y coordinate of the cubes center
+	 * @param z coordinate of the cubes center
+	 * @param cubeRadius
+	 * @return cubeRadius the 'radius' of the cube. The length of an edge equals: <br>
+	 * 2 * cubeRadius + 1
+	 * @see Position
+	 */
+	public static List<Position> getCube(int x, int y, int z, int cubeRadius)
 	{
-		List<int []> returnList = new ArrayList<int[]>();
-		for (int checkX = x - cubeRadius;(checkX <= x + cubeRadius); checkX++)
+		List<Position> positions = new ArrayList<Position>();
+		for (int currentX = x - cubeRadius;(currentX <= x + cubeRadius); currentX++)
 		{
-			for (int checkY = y - cubeRadius;(checkY <= y + cubeRadius); checkY++)
+			for (int currentY = y - cubeRadius;(currentY <= y + cubeRadius); currentY++)
 			{
-				for (int checkZ = z - cubeRadius;(checkZ <= z + cubeRadius); checkZ++)
+				for (int currentZ = z - cubeRadius;(currentZ <= z + cubeRadius); currentZ++)
 				{
-					int [] coords = new int [3];
-					coords[0] = checkX;
-					coords[1] = checkY;
-					coords[2] = checkZ;
-					returnList.add(coords);
+					positions.add(new Position(currentX, currentY, currentZ));
 				}	
 			}
 		}
-		return returnList;
+		return positions;
 	}
-	
-	public static LocatedBlock[] getLocatedBlocksInCube(World world, int x, int y, int z, int cubeRadius)
-	{
-		LocatedBlock[] blocks = new LocatedBlock[27];
-		List<int []> coordList = getBlockCoordsInCube(world, x, y, z, cubeRadius);
-		for(int i = 0; i < coordList.size(); i++)
-		{
-			blocks[i] = new LocatedBlock(world.getBlock(coordList.get(i)[0], coordList.get(i)[1], coordList.get(i)[2]),
-										 coordList.get(i)[0], coordList.get(i)[1], coordList.get(i)[2],
-										 world.getBlockMetadata(coordList.get(i)[0], coordList.get(i)[1], coordList.get(i)[2]));
-		}
-		return blocks;
-	}
-	
+
+	/** Returns a list of all the blocks that are in a cube. The center of the cube is defined by the coordinates.
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param cubeRadius the 'radius' of the cube. The length of an edge equals: <br>
+	 * 2 * cubeRadius + 1
+	 * @return a List of blocks (block types)
+	 */
 	public static List<Block> getBlocksInCube(World world, int x, int y, int z, int cubeRadius)
 	{
 		List<Block> blocks = new ArrayList<Block>();
-		List<int []> coordList = getBlockCoordsInCube(world, x, y, z, cubeRadius);
-		for(int i = 0; i < coordList.size(); i++)
+		for(Position p : getCube(x, y, z, cubeRadius))
 		{
-			blocks.add(world.getBlock(coordList.get(i)[0], coordList.get(i)[1], coordList.get(i)[2]));
+			blocks.add(p.getBlock(world));
 		}
 		return blocks;
 	}

@@ -6,8 +6,9 @@ import net.minecraft.block.material.Material;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import experimentalPhysics.util.LocatedBlock;
+
 import experimentalPhysics.util.MultiblockHelper;
+import experimentalPhysics.util.Position;
 
 public abstract class BlockAdvancedRefinerPart extends BlockConnectedTexture
 {
@@ -20,17 +21,18 @@ public abstract class BlockAdvancedRefinerPart extends BlockConnectedTexture
 	}
 
 	@Override
-	public boolean canTextureConnect(IBlockAccess access, int x, int y, int z, int xConnector, int yConnector, int zConnector)
-	{
-		return  access.getBlock(xConnector, yConnector, zConnector) instanceof BlockAdvancedRefinerPart && access.getBlockMetadata(x, y, z) == 1;
-	}
-	
-	@Override
 	public IIcon getIcon(int side, int meta)
 	{
 		return icons[0];
 	}
+	
 
+	@Override
+	public boolean canTextureConnect(IBlockAccess access, Position thisPos, Position connectorPos)
+	{
+		return connectorPos.getBlock(access) instanceof BlockAdvancedRefinerPart && connectorPos.getMeta(access) == 1;
+	}
+	
 	public int onBlockPlaced(World world, int x, int y, int z, int side, float p_149660_6_, float p_149660_7_, float p_149660_8_, int meta)
 	{	        
 		world.scheduleBlockUpdate(x, y, z, this, 1);
@@ -39,40 +41,65 @@ public abstract class BlockAdvancedRefinerPart extends BlockConnectedTexture
 
 	public void updateTick(World world, int x, int y, int z, Random p_149674_5_)
 	{
-		LocatedBlock refiner = findRefiner(world, x, y, z);
-		if (refiner != null)
+		Position refinerPos = findRefiner(world, x, y, z);
+		if (refinerPos != null)
 		{
-			((BlockAdvancedRefiner) refiner.getBlocktype()).casingAdded(world, refiner.getxCoord(), refiner.getyCoord(), refiner.getzCoord());
+			((BlockAdvancedRefiner) refinerPos.getBlock(world)).casingAdded(world, refinerPos.x, refinerPos.y, refinerPos.z);
 		}
+	}
+
+	/**Gets called after all of the multiblocks components have been placed.
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param xCore <br> 
+	 * 		xCoord of the advancedRefinerCore
+	 * @param yCore <br>
+	 * 		yCoord of the advancedRefinerCore
+	 * @param zCore <br>
+	 * 		zCoord of the advancedRefinerCore
+	 */
+	public void form(World world, int x, int y, int z, int xCore, int yCore, int zCore)
+	{
+		world.setBlockMetadataWithNotify(x, y, z, 1, 2);
 	}
 
 	public void onBlockPreDestroy(World world, int x, int y, int z, int meta)
 	{
 		if (meta == 1)
 		{
-			LocatedBlock refiner = findRefiner(world, x, y, z);
-			if (refiner != null)
+			Position refinerPos = findRefiner(world, x, y, z);
+			if (refinerPos != null)
 			{
-				((BlockAdvancedRefiner) refiner.getBlocktype()).casingRemoved(world, refiner.getxCoord(), refiner.getyCoord(), refiner.getzCoord());
+				((BlockAdvancedRefiner) refinerPos.getBlock(world)).casingRemoved(world, refinerPos.x, refinerPos.y, refinerPos.z);
 			}
 		}
 	}
 
-	public void form(World world, int x, int y, int z, int xCore, int yCore, int zCore)
-	{
-		world.setBlockMetadataWithNotify(x, y, z, 1, 2);
-	}
-
+	/**Gets called after one of the multiblocks components has been destroyed.
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
 	public void unForm(World world, int x, int y, int z)
 	{
 		world.setBlockMetadataWithNotify(x, y, z, 0, 2);
 	}
 
-	protected LocatedBlock findRefiner(World world, int x, int y, int z)
+	/**Finds a AdvancedRefinerCore that is one block away from the part
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return the position of the AdvancedRefinerCore or null if there is none in proximity
+	 */
+	protected Position findRefiner(World world, int x, int y, int z)
 	{
-		for (LocatedBlock block : MultiblockHelper.getLocatedBlocksInCube(world, x, y, z, 1))
+		for (Position block : MultiblockHelper.getCube(x, y, z, 1))
 		{
-			if (block.getBlocktype() instanceof BlockAdvancedRefiner)
+			if (block.getBlock(world) instanceof BlockAdvancedRefiner)
 			{
 				return block;
 			}			

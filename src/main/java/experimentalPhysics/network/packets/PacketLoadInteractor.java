@@ -1,6 +1,7 @@
-package experimentalPhysics.network;
+package experimentalPhysics.network.packets;
 
 import io.netty.buffer.ByteBuf;
+
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
 public class PacketLoadInteractor implements IMessage
@@ -29,28 +30,26 @@ public class PacketLoadInteractor implements IMessage
 	@Override
 	public void fromBytes(ByteBuf buf)
 	{
-		System.out.println(buf);
 		if (buf != null && buf.readableBytes() > 0)
 		{
-			refinerX = buf.getInt(INDEX_REFINER_X);
-			refinerY = buf.getInt(INDEX_REFINER_Y);
-			refinerZ = buf.getInt(INDEX_REFINER_Z);
-			interactorX = buf.getInt(INDEX_INTERACTOR_X);
-			interactorY = buf.getInt(INDEX_INTERACTOR_Y);
-			interactorZ = buf.getInt(INDEX_INTERACTOR_Z);
+			refinerX = buf.readInt();
+			refinerY = buf.readInt();
+			refinerZ = buf.readInt();
+			interactorX = buf.readInt();
+			interactorY = buf.readInt();
+			interactorZ = buf.readInt();
 		}
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf)
 	{
-		buf.capacity(12);
-		buf.setInt(INDEX_REFINER_X, refinerX);
-		buf.setInt(INDEX_REFINER_Y, refinerY);
-		buf.setInt(INDEX_REFINER_Z, refinerZ);
-		buf.setInt(INDEX_INTERACTOR_X, interactorX);
-		buf.setInt(INDEX_INTERACTOR_Y, interactorY);
-		buf.setInt(INDEX_INTERACTOR_Z, interactorZ);
+		buf.writeInt(refinerX);
+		buf.writeInt(refinerY);
+		buf.writeInt(refinerZ);
+		buf.writeInt(interactorX);
+		buf.writeInt(interactorY);
+		buf.writeInt(interactorZ);
 	}
 
 	@Override

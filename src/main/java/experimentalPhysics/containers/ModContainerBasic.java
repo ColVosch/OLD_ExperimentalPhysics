@@ -6,9 +6,19 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+/**This container implements basic shift-clicking, so you don't crash on the attempt. It also adds a method to add the players inventory to itself, witch spares a lot of copy-pasting.
+ * @author ColVosch
+ * @see ModContainerBasic#addPlayerInventoryToContainer(InventoryPlayer, int, int)
+ * @see ModContainerBasic#transferStackInSlot(EntityPlayer, int)
+ */
 public abstract class ModContainerBasic extends Container
 {
 
+	/**Adds the given playerInventory to the ModContainerBasic
+	 * @param inventory the playerInventory
+	 * @param xOffset how far should the slots be moved along the x-axis
+	 * @param yOffset how far should the slots be moved along the y-axis
+	 */
 	public void addPlayerInventoryToContainer(InventoryPlayer inventory, int xOffset, int yOffset)
 	{	
 		for (int i = 0; i < 3; i++)
@@ -25,17 +35,17 @@ public abstract class ModContainerBasic extends Container
 	}
 	
 	@Override
-	public ItemStack transferStackInSlot(EntityPlayer p_82846_1_, int p_82846_2_)
+	public ItemStack transferStackInSlot(EntityPlayer player, int slotIndex)
     {
         ItemStack itemstack = null;
-        Slot slot = (Slot)this.inventorySlots.get(p_82846_2_);
+        Slot slot = (Slot) this.inventorySlots.get(slotIndex);
 
         if (slot != null && slot.getHasStack())
         {
             ItemStack itemstack1 = slot.getStack();
             itemstack = itemstack1.copy();
 
-            if (p_82846_2_ < inventorySlots.size() - 36)
+            if (slotIndex < inventorySlots.size() - 36)
             {
                 if (!this.mergeItemStack(itemstack1, inventorySlots.size() - 36, this.inventorySlots.size(), true))
                 {
@@ -56,7 +66,6 @@ public abstract class ModContainerBasic extends Container
                 slot.onSlotChanged();
             }
         }
-
         return itemstack;
     }
 }

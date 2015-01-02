@@ -1,5 +1,6 @@
 package experimentalPhysics.tileEntitys;
 
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -8,10 +9,17 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.Constants.NBT;
 
+/**Handles all the repeating functionality required by all TileEntitys implementing IInventory.
+ * Also saves and loads inventory contents.
+ * @author ColVosch
+ *
+ */
 public abstract class TileEntityStoring extends TileEntity implements IInventory
 {
 	protected ItemStack[] inventory;
 	
+	/**Initialize an itemStack array called inventory here. 
+	 */
 	protected abstract void initInvenory();
 	
 	public TileEntityStoring()
@@ -42,8 +50,8 @@ public abstract class TileEntityStoring extends TileEntity implements IInventory
 	public void readFromNBT(NBTTagCompound tagCompound)
 	{
 		super.readFromNBT(tagCompound);
+		initInvenory();
 		NBTTagList itemListNbt = tagCompound.getTagList("Items", NBT.TAG_COMPOUND);
-		inventory = new ItemStack[getSizeInventory()];
 		
 		for (int i = 0; i < itemListNbt.tagCount(); i++)
 		 {
@@ -65,22 +73,16 @@ public abstract class TileEntityStoring extends TileEntity implements IInventory
 	@Override
 	public ItemStack getStackInSlot(int slot)
 	{
-		if (inventory.length > slot)
-		{
-			return inventory[slot];
-		}
-		else
-		{
-			System.out.println("[TileEntityStoring] [getStackInSlot] invalid slot index: " + Integer.toString(slot));
-			return null;
-		}
+		assert inventory.length > slot : "[TileEntityStoring] [getStackInSlot] invalid slot index: " + Integer.toString(slot);
+		
+		return inventory[slot];
 	}
 
 	@Override
 	public ItemStack decrStackSize(int slot, int itemAmount)
 	{
 		ItemStack returnStack = inventory[slot] == null ? null : (itemAmount <= inventory[slot].stackSize ? inventory[slot].splitStack(itemAmount) : inventory[slot].splitStack(inventory[slot].stackSize));
-		if(inventory[slot].stackSize == 0)
+		if(inventory[slot] != null && inventory[slot].stackSize == 0)
 		{
 			inventory[slot] = null;
 		}
@@ -98,18 +100,13 @@ public abstract class TileEntityStoring extends TileEntity implements IInventory
 	@Override
 	public void setInventorySlotContents(int slot, ItemStack stack)
 	{
+		assert inventory.length > slot : "[TileEntityStoring] [setInventorySlotContents] invalid slot index: " + Integer.toString(slot);
+		
 		if (stack != null && stack.stackSize > getInventoryStackLimit())
 		{
 			stack.stackSize = getInventoryStackLimit();
 		}
-		if (inventory.length > slot)
-		{
-			inventory[slot] = stack;
-		}	
-		else
-		{
-			System.out.println("[TileEntityStoring] [setInventorySlotContents] invalid slot index: " + Integer.toString(slot));
-		}
+		inventory[slot] = stack;
 	}
 
 	@Override
@@ -141,4 +138,16 @@ public abstract class TileEntityStoring extends TileEntity implements IInventory
 	
 	@Override
 	public void closeInventory() {}
+
+	public void dropItems()
+	{
+		for (int i = 0; i < getSizeInventory(); i++)
+		{
+			ItemStack stack = getStackInSlot(i);
+        	if (stack != null)
+			{
+				worldObj.spawnEntityInWorld(new EntityItem(worldObj, xCoord, yCoord, zCoord, stack));
+			}
+		}
+	}
 }
