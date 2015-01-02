@@ -2,18 +2,18 @@ package experimentalPhysics.network.handlers;
 
 import net.minecraft.client.Minecraft;
 
-import experimentalPhysics.network.packets.PacketSyncTileEntity;
+import experimentalPhysics.network.packets.PacketCoords;
 
 /**Helper class used for synchronizing a TileEntity with the server
  * @author ColVosch
- * @see Synchronizer#synchronize(PacketSyncTileEntity)
+ * @see Synchronizer#synchronize(PacketCoords)
  */
 public class Synchronizer
 {
-	/**Call this to call the {@link ISynchronizable#synchronize(PacketSyncTileEntity)} method of the ISerializable contained in the {@link PacketSyncTileEntity} you provide.
+	/**Call this to call the {@link ISynchronizable#synchronize(PacketCoords)} method of the ISerializable contained in the {@link PacketCoords} you provide.
 	 * @param message the packet you have to provide
 	 */
-	public static void synchronize(PacketSyncTileEntity message)
+	public static void synchronize(PacketCoords message)
 	{
 		//TODO there has to be a better way!
 		((ISynchronizable) Minecraft.getMinecraft().theWorld.getTileEntity(message.x, message.y, message.z)).synchronize(message);		
