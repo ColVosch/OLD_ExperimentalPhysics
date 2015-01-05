@@ -1,5 +1,8 @@
 itemGroup.experimentalPhysics=Experimental Physics
 
+propperty.tier1MaxHeat.display=Iron tier maximum heat
+propperty.tier1MaxHeat.comment=The highest temperature at witch the iron tech tier can operate
+
 container.refiner=Refiner
 container.advancedRefinerInsertionLock=Advanced Refiner Insertion Lock
 
@@ -13,3 +16,4 @@ tile.blockRefiner.name=Refiner
 tile.blockAdvancedRefinerCasing.name=Advanced Refiner Casing
 tile.blockAdvancedRefiner.name=Advanced Refiner Core
 tile.blockAdvancedRefinerInsertionLock.name=Advanced Refiner Insertion Lock
+tile.blockAdvancedRefinerDisplay.name=Advanced Refiner Display
