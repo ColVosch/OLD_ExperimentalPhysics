@@ -32,6 +32,7 @@ public class GuiRefiner extends GuiContainer
 	
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
 	{
+		//TODO extract
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		mc.renderEngine.bindTexture(new ResourceLocation(ExperimentalPhysics.MODID + ":textures/guis/GuiRefiner.png"));
 		int j = (width - xSize) / 2;
