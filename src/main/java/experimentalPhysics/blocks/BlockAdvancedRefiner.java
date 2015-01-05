@@ -7,11 +7,12 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
 import cpw.mods.fml.common.registry.GameRegistry;
-
 import experimentalPhysics.ExperimentalPhysics;
+import experimentalPhysics.constants.Tiers;
 import experimentalPhysics.items.ItemBlockAdvancedRefiner;
+import experimentalPhysics.network.PacketController;
+import experimentalPhysics.network.packets.PacketCoords;
 import experimentalPhysics.tileEntitys.TileEntityAdvancedRefiner;
 import experimentalPhysics.util.MultiblockHelper;
 import experimentalPhysics.util.Position;
@@ -56,7 +57,7 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 		}	
 	}
 
-	public boolean canForm(World world, int x, int y, int z)
+	private boolean canForm(World world, int x, int y, int z)
 	{
 		boolean canForm = true;
 		List<Position> surroundingBlocks = MultiblockHelper.getCube(x, y, z, 1);
@@ -71,8 +72,12 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 		return canForm;
 	}
 
-	private void formStructure(World world, int x, int y, int z)
+	public void formStructure(World world, int x, int y, int z)
 	{	
+		if (!world.isRemote)
+		{
+			PacketController.getNetworkWrapper().sendToAll(new PacketCoords(x, y, z, (byte) 0));
+		}
 		for (Position casing : MultiblockHelper.getCube(x, y, z, 1))
 		{
 			((BlockAdvancedRefinerPart) casing.getBlock(world)).form(world, casing.x, casing.y, casing.z, x, y, z);
@@ -82,6 +87,7 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 	@Override
 	public void form(World world, int x, int y, int z, int xCore, int yCore, int zCore)
 	{
+		world.setBlockMetadataWithNotify(x, y, z, 1, 2);
 		((TileEntityAdvancedRefiner) world.getTileEntity(x, y, z)).form();
 	}
 
@@ -95,13 +101,24 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 	{
 		for (Position casing : MultiblockHelper.getCube(x, y, z, 1))
 		{
-			((BlockAdvancedRefinerPart) casing.getBlock(world)).unForm(world, casing.x, casing.y, casing.z);
+			if (casing.getBlock(world) instanceof BlockAdvancedRefinerPart)
+			{
+				((BlockAdvancedRefinerPart) casing.getBlock(world)).unForm(world, casing.x, casing.y, casing.z);
+			}
 		}
 	}
 
 	@Override
 	public void unForm(World world, int x, int y, int z) 
 	{
+		super.unForm(world, x, y, z);
 		((TileEntityAdvancedRefiner) world.getTileEntity(x, y, z)).unForm();
+	}
+
+	
+	@Override
+	public int getMaxHeat()
+	{
+		return Tiers.tierIron.getMaxHeat();
 	}
 }
