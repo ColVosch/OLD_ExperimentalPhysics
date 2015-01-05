@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
 import experimentalPhysics.items.ModItems;
 import experimentalPhysics.network.PacketController;
 import experimentalPhysics.network.handlers.ISynchronizable;
@@ -95,8 +95,21 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		}
 	}
 	
-	
 
+	public void synchronize(PacketSyncAdvancedRefiner message)
+	{
+		System.out.println("synchronizing advancedRefiner");
+		formed = message.formed;
+		progress = message.progress;
+		refiningSpeed = message.refiningSpeed;
+		heat = message.heat;
+		minHeat = message.minHeat;
+		maxHeat = message.maxHeat;
+		dustChance = message.dustChance;	
+		System.out.println(message);
+	}
+
+	
 	@Override
 	public void writeToNBT(NBTTagCompound tagCompound)
 	{
@@ -198,10 +211,6 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		if (progress >= 0 && progress < REQUIRED_PROGRESS)
 		{
 			progress += refiningSpeed;
-			if (progress % 20 == 0)
-			{
-				System.out.println("Progress: " + progress);
-			}
 		}
 		
 		if (progress >= REQUIRED_PROGRESS)
@@ -325,17 +334,10 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		modifierPositions.clear();
 	}
 
-	public void synchronize(PacketSyncAdvancedRefiner message)
+	
+	public int getProgress()
 	{
-		System.out.println("synchronizing advancedRefiner");
-		formed = message.formed;
-		progress = message.progress;
-		refiningSpeed = message.refiningSpeed;
-		heat = message.heat;
-		minHeat = message.minHeat;
-		maxHeat = message.maxHeat;
-		dustChance = message.dustChance;	
-		System.out.println(message);
+		return progress;
 	}
 
 }
