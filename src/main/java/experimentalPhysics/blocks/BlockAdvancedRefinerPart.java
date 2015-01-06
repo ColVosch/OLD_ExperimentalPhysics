@@ -2,20 +2,21 @@ package experimentalPhysics.blocks;
 
 import java.util.Random;
 
+import experimentalPhysics.constants.Tier;
+import experimentalPhysics.util.MultiblockHelper;
+import experimentalPhysics.util.Position;
+
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import experimentalPhysics.util.MultiblockHelper;
-import experimentalPhysics.util.Position;
 
 public abstract class BlockAdvancedRefinerPart extends BlockConnectedTexture
 {
 	/**
-	 * @return the maximum heat at which the refiner can operate (in °C).
+	 * @return the tier of the refiner part.
 	 */
-	public abstract int getMaxHeat();
+	public abstract Tier getTier();
 	
 	
 	public BlockAdvancedRefinerPart()
@@ -74,8 +75,6 @@ public abstract class BlockAdvancedRefinerPart extends BlockConnectedTexture
 	{
 		if (meta == 1)
 		{
-			//TODO remove debug code		
-			System.out.println("Pre-Destroying: " + x + " " + y + " " + z);
 			Position refinerPos = findRefiner(world, x, y, z);
 			if (refinerPos != null)
 			{
@@ -92,11 +91,6 @@ public abstract class BlockAdvancedRefinerPart extends BlockConnectedTexture
 	 */
 	public void unForm(World world, int x, int y, int z)
 	{
-		//TODO remove debug code
-		if (!world.isRemote)
-		{
-			System.out.println("Unforming: " + x + " " + y + " " + z);
-		}
 		world.setBlockMetadataWithNotify(x, y, z, 0, 2);
 	}
 

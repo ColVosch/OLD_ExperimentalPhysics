@@ -1,16 +1,18 @@
 package experimentalPhysics.blocks;
 
+import cpw.mods.fml.common.registry.GameRegistry;
+
+import experimentalPhysics.ExperimentalPhysics;
+import experimentalPhysics.constants.Tier;
+import experimentalPhysics.constants.Tiers;
+import experimentalPhysics.tileEntitys.TileEntityAdvancedRefinerInsertionLock;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import cpw.mods.fml.common.registry.GameRegistry;
-import experimentalPhysics.ExperimentalPhysics;
-import experimentalPhysics.constants.ExpPhysConfig;
-import experimentalPhysics.constants.Tiers;
-import experimentalPhysics.tileEntitys.TileEntityAdvancedRefinerInsertionLock;
 
 public class BlockAdvancedRefinerInsertionLock extends BlockAdvancedRefinerPart implements ITileEntityProvider
 {
@@ -61,8 +63,8 @@ public class BlockAdvancedRefinerInsertionLock extends BlockAdvancedRefinerPart 
     }
 
 	@Override
-	public int getMaxHeat()
+	public Tier getTier()
 	{
-		return Tiers.tierIron.getMaxHeat();
+		return Tiers.tierIron;
 	}
 }
