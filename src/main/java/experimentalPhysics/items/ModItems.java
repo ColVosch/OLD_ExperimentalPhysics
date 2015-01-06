@@ -3,13 +3,13 @@ package experimentalPhysics.items;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-
 import cpw.mods.fml.common.registry.GameRegistry;
 
 import experimentalPhysics.ExperimentalPhysics;
 import experimentalPhysics.guis.ExperimentalPhysicsCreativeTab;
+
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 
 public final class ModItems
 {

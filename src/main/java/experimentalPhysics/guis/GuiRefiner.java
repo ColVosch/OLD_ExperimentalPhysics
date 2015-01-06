@@ -4,15 +4,15 @@ import java.awt.Color;
 
 import org.lwjgl.opengl.GL11;
 
+import experimentalPhysics.ExperimentalPhysics;
+import experimentalPhysics.containers.ContainerRefiner;
+import experimentalPhysics.tileEntitys.TileEntityRefiner;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
-
-import experimentalPhysics.ExperimentalPhysics;
-import experimentalPhysics.containers.ContainerRefiner;
-import experimentalPhysics.tileEntitys.TileEntityRefiner;
 
 public class GuiRefiner extends GuiContainer
 {

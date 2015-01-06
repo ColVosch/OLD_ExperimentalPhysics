@@ -1,5 +1,7 @@
 package experimentalPhysics.tileEntitys;
 
+import experimentalPhysics.util.Position;
+
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -62,6 +64,11 @@ public abstract class TileEntityStoring extends TileEntity implements IInventory
 				 inventory[slot] = ItemStack.loadItemStackFromNBT(nbttagcompound);
 			 }
 		 }
+	}
+
+	public Position getPosition()
+	{
+		return new Position(xCoord, yCoord, zCoord);
 	}
 	
 	@Override
