@@ -2,36 +2,35 @@ package experimentalPhysics.guis;
 
 import java.awt.Color;
 
+import org.lwjgl.opengl.GL11;
+
+import experimentalPhysics.ExperimentalPhysics;
+import experimentalPhysics.containers.ContainerEmpty;
+import experimentalPhysics.tileEntitys.TileEntityAdvancedRefinerDisplay;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
-
-import org.lwjgl.opengl.GL11;
-
-import cpw.mods.fml.common.FMLLog;
-import experimentalPhysics.ExperimentalPhysics;
-import experimentalPhysics.containers.ContainerEmpty;
-import experimentalPhysics.tileEntitys.TileEntityAdvancedRefiner;
 
 public class GuiAdvancedRefinerDisplay extends GuiContainer
 {
-	TileEntityAdvancedRefiner refiner;
+	TileEntityAdvancedRefinerDisplay display;
 	
-	public GuiAdvancedRefinerDisplay(TileEntityAdvancedRefiner refiner)
+	public GuiAdvancedRefinerDisplay(TileEntityAdvancedRefinerDisplay refiner)
 	{
 		super(new ContainerEmpty());
-		this.refiner = refiner;
+		this.display = refiner;
 	}
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int p_146979_1_, int p_146979_2_)
     {
 		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-		if (refiner != null)
+		if (display != null)
 		{
-			drawString(fontRenderer, String.format("Progress:     %4.2f", ((float) refiner.getProgress()) / ((float) TileEntityAdvancedRefiner.REQUIRED_PROGRESS)), 5, 5, Color.WHITE.getRGB());
+			drawString(fontRenderer, String.format("Progress:     %4.2f %%", display.getProgressPercentage()), 5, 5, Color.WHITE.getRGB());
+			drawString(fontRenderer, String.format("Heat:         %5.2f",  display.getHeat()), 5, 15, Color.WHITE.getRGB());
 		}
     }
 	

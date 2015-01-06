@@ -1,10 +1,8 @@
 package experimentalPhysics.guis;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
+
 import experimentalPhysics.ExperimentalPhysics;
 import experimentalPhysics.containers.ContainerAdvancedRefinerInsertionLock;
 import experimentalPhysics.containers.ContainerEmpty;
@@ -12,6 +10,10 @@ import experimentalPhysics.containers.ContainerRefiner;
 import experimentalPhysics.tileEntitys.TileEntityAdvancedRefinerDisplay;
 import experimentalPhysics.tileEntitys.TileEntityAdvancedRefinerInsertionLock;
 import experimentalPhysics.tileEntitys.TileEntityRefiner;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 public class GuiHandler implements IGuiHandler
 {
@@ -65,7 +67,7 @@ public class GuiHandler implements IGuiHandler
 			}
 			case ID_ADVANCED_REFINER_DISPLAY:
 			{
-				return new GuiAdvancedRefinerDisplay(((TileEntityAdvancedRefinerDisplay) world.getTileEntity(x, y, z)).getRefiner());
+				return new GuiAdvancedRefinerDisplay(((TileEntityAdvancedRefinerDisplay) world.getTileEntity(x, y, z)));
 			}
 			default:
 			{
