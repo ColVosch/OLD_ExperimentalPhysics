@@ -1,12 +1,12 @@
 package experimentalPhysics.recipes;
 
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-
 import cpw.mods.fml.common.registry.GameRegistry;
 
 import experimentalPhysics.blocks.ModBlocks;
 import experimentalPhysics.items.ModItems;
+
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 
 public class VanillaRecipes
 {

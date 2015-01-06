@@ -3,10 +3,10 @@ package experimentalPhysics.blocks;
 import java.util.ArrayList;
 import java.util.List;
 
+import experimentalPhysics.guis.ExperimentalPhysicsCreativeTab;
+
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
-
-import experimentalPhysics.guis.ExperimentalPhysicsCreativeTab;
 
 public final class ModBlocks
 {

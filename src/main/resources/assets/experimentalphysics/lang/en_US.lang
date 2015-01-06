@@ -1,7 +1,7 @@
 itemGroup.experimentalPhysics=Experimental Physics
 
 propperty.tier1MaxHeat.display=Iron tier maximum heat
-propperty.tier1MaxHeat.comment=The highest temperature at witch the iron tech tier can operate
+propperty.tier1MaxHeat.comment=The highest temperature at witch the iron tech tier is able to operate
 
 container.refiner=Refiner
 container.advancedRefinerInsertionLock=Advanced Refiner Insertion Lock

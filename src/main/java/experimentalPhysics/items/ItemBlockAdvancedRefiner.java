@@ -1,5 +1,8 @@
 package experimentalPhysics.items;
 
+import experimentalPhysics.blocks.ModBlocks;
+import experimentalPhysics.util.MultiblockHelper;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
@@ -8,9 +11,6 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
-
-import experimentalPhysics.blocks.ModBlocks;
-import experimentalPhysics.util.MultiblockHelper;
 
 public class ItemBlockAdvancedRefiner extends ItemBlock
 {

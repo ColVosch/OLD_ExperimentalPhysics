@@ -1,18 +1,21 @@
 package experimentalPhysics.network.handlers;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.World;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+
 import experimentalPhysics.blocks.BlockAdvancedRefiner;
 import experimentalPhysics.network.packets.PacketCoords;
 import experimentalPhysics.util.Position;
 
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.World;
+
 public class HandlerCoords implements IMessageHandler<PacketCoords, IMessage>
 {
-	public static final int ID_FORM_ADVANCED_REFINER_STRUCTURE = 0;
+	public static final byte ID_FORM_ADVANCED_REFINER = 0;
+	public static final byte ID_UNFORM_ADVANCED_REFINER = 1;
 	
 	@Override
 	public IMessage onMessage(PacketCoords message, MessageContext ctx)
@@ -21,7 +24,7 @@ public class HandlerCoords implements IMessageHandler<PacketCoords, IMessage>
 		Position messagePos = new Position(message.x, message.y, message.z);
 		switch(message.id)
 		{
-			case ID_FORM_ADVANCED_REFINER_STRUCTURE:
+			case ID_FORM_ADVANCED_REFINER:
 			{
 				Block block = messagePos.getBlock(world);
 				if (block instanceof BlockAdvancedRefiner)
@@ -34,9 +37,18 @@ public class HandlerCoords implements IMessageHandler<PacketCoords, IMessage>
 				}
 				return null;
 			}
-			default:
+			case ID_UNFORM_ADVANCED_REFINER:
 			{
-				System.out.println("Id not defined: " + Byte.toString(message.id));
+				Block block = messagePos.getBlock(world);
+				if (block instanceof BlockAdvancedRefiner)
+				{
+					((BlockAdvancedRefiner) block).unFormStructure(world, messagePos.x, messagePos.y, messagePos.z);
+				}
+				else
+				{
+					System.out.println("Invalid id for these coords: no BlockAdvancedRefiner was found.");
+				}
+				return null;
 			}
 		}
 		return null;

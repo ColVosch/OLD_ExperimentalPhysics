@@ -1,8 +1,8 @@
 package experimentalPhysics.network.handlers;
 
-import net.minecraft.client.Minecraft;
-
 import experimentalPhysics.network.packets.PacketCoords;
+
+import net.minecraft.client.Minecraft;
 
 /**Helper class used for synchronizing a TileEntity with the server
  * @author ColVosch

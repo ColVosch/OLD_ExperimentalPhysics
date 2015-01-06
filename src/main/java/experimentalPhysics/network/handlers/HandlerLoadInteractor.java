@@ -1,9 +1,5 @@
 package experimentalPhysics.network.handlers;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -13,6 +9,10 @@ import experimentalPhysics.tileEntitys.IAdvancedRefinerModifier;
 import experimentalPhysics.tileEntitys.IMultiblockInput;
 import experimentalPhysics.tileEntitys.IMultiblockOutput;
 import experimentalPhysics.tileEntitys.TileEntityAdvancedRefiner;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 public class HandlerLoadInteractor implements IMessageHandler<PacketLoadInteractor, IMessage>
 {

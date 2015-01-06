@@ -1,11 +1,11 @@
 package experimentalPhysics.containers;
 
+import experimentalPhysics.tileEntitys.TileEntityRefiner;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-
-import experimentalPhysics.tileEntitys.TileEntityRefiner;
 
 public class ContainerRefiner extends ModContainerBasic
 {

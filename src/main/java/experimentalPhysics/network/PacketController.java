@@ -3,6 +3,7 @@ package experimentalPhysics.network;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
+
 import experimentalPhysics.ExperimentalPhysics;
 import experimentalPhysics.network.handlers.HandlerCoords;
 import experimentalPhysics.network.handlers.HandlerLoadInteractor;
@@ -18,7 +19,7 @@ public class PacketController
 	private static SimpleNetworkWrapper network;
 
 	public static void registerPackets()
-	{		
+	{
 		getNetworkWrapper().registerMessage(HandlerLoadInteractor.class, PacketLoadInteractor.class, 0, Side.CLIENT);
 		getNetworkWrapper().registerMessage(HandlerSyncAdvancedRefiner.class, PacketSyncAdvancedRefiner.class, 1, Side.CLIENT);
 		getNetworkWrapper().registerMessage(HandlerSyncRefiner.class, PacketSyncRefiner.class, 2, Side.CLIENT);

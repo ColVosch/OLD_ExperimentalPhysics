@@ -1,15 +1,15 @@
 package experimentalPhysics.blocks;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.util.IIcon;
-import net.minecraft.world.IBlockAccess;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import experimentalPhysics.util.MathHelper;
 import experimentalPhysics.util.Position;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.util.IIcon;
+import net.minecraft.world.IBlockAccess;
 
 
 /**This class provides connected textures for all its subclasses.
