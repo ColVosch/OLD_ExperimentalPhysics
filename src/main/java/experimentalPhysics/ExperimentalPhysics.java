@@ -7,8 +7,10 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+
 import experimentalPhysics.blocks.ModBlocks;
 import experimentalPhysics.constants.ExpPhysConfig;
+import experimentalPhysics.constants.Tiers;
 import experimentalPhysics.guis.GuiHandler;
 import experimentalPhysics.items.ModItems;
 import experimentalPhysics.network.PacketController;
@@ -28,6 +30,8 @@ import experimentalPhysics.recipes.VanillaRecipes;
         public void preInit(FMLPreInitializationEvent event) 
         {  
         	ExpPhysConfig.init(event.getSuggestedConfigurationFile());
+        	Tiers.register();
+        	
         	ModBlocks.register();
         	ModItems.register();
         }

@@ -4,16 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import experimentalPhysics.blocks.BlockAdvancedRefiner;
+import experimentalPhysics.constants.ExpPhysConfig;
 import experimentalPhysics.items.ModItems;
 import experimentalPhysics.network.PacketController;
 import experimentalPhysics.network.handlers.ISynchronizable;
 import experimentalPhysics.network.packets.PacketLoadInteractor;
 import experimentalPhysics.network.packets.PacketSyncAdvancedRefiner;
 import experimentalPhysics.util.Position;
+
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISynchronizable<PacketSyncAdvancedRefiner>
 {
@@ -23,13 +25,16 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	private static final int INPUT = 0;
 	private static final int OUTPUT_PRIMARY = 1;
 	private static final int OUTPUT_SECONDARY = 2;
+	private static final int VALUE_NOT_DEFINED = -1111;
 	
 	private boolean formed = false;
 	private short progress = -1;
 	private short refiningSpeed = 100;
-	private float heat = 350;
-	private short minHeat = 200;
+	private float temperature = 350;
+	private float coolOffConstant = VALUE_NOT_DEFINED;
+	private int roomTemp = VALUE_NOT_DEFINED;
 	private short maxHeat = 500;
+	private float averageThermConductivity = 80;
 	private float dustChance = 0f;
 	private List<IMultiblockInput> inputs = new ArrayList<IMultiblockInput>();;
 	private List<Position> inputPositions = new ArrayList<Position>();;
@@ -95,15 +100,18 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		}
 	}
 	
-
+	private void recalculateCoolOffConstant()
+	{
+		coolOffConstant = ((float) ExpPhysConfig.getCoolDownFactor()) * ((float) ((((BlockAdvancedRefiner) getPosition().getBlock(worldObj)).getAverageThermalConstant(worldObj, xCoord, yCoord, zCoord))) / ((float) ((BlockAdvancedRefiner) getPosition().getBlock(worldObj)).getMass(worldObj, xCoord, yCoord, zCoord)) * ((float) Math.sqrt(14f/Math.PI)));
+	}
+	
 	public void synchronize(PacketSyncAdvancedRefiner message)
 	{
 		System.out.println("synchronizing advancedRefiner");
 		formed = message.formed;
 		progress = message.progress;
 		refiningSpeed = message.refiningSpeed;
-		heat = message.heat;
-		minHeat = message.minHeat;
+		temperature = message.heat;
 		maxHeat = message.maxHeat;
 		dustChance = message.dustChance;	
 		System.out.println(message);
@@ -151,6 +159,7 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	public void form()
 	{
 		formed = true;
+		recalculateCoolOffConstant();
 	}
 	
 	public void registerInput(IMultiblockInput input)
@@ -189,7 +198,6 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 			for (IAdvancedRefinerModifier modifier : modifiers)
 			{
 				refiningSpeed += modifier.getRefiningSpeedChange();
-				minHeat += modifier.getMinHeatChange();
 				maxHeat += modifier.getMaxHeatChange();
 				dustChance *= 1 + modifier.getDustChanceChange();
 			}
@@ -200,6 +208,7 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	@Override
 	public void updateEntity()
 	{
+		coolOff();
 		if (progress == -1)
 		{
 			if (canStartRefining())
@@ -217,20 +226,69 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		{
 			if (!worldObj.isRemote)
 			{
-				PacketController.getNetworkWrapper().sendToAll(new PacketSyncAdvancedRefiner(xCoord, yCoord, zCoord, formed, progress, refiningSpeed, heat, minHeat, maxHeat, dustChance));
+				PacketController.getNetworkWrapper().sendToAll(new PacketSyncAdvancedRefiner(xCoord, yCoord, zCoord, formed, progress, refiningSpeed, temperature, maxHeat, dustChance));
 			}
 			process();
 			progress = -1;
 		}	
 	}
-		
+	
+	private void coolOff()
+	{	
+		temperature -= getCoolOffConstant() * (temperature - getRoomTemp());
+	}
+
+	/**
+	 * @return the average thermal conductivity of the structure times 54 divided by
+	 * the mass of the structure times the average thermal capacity of the structure
+	 * times the square root of (14 divided by pi) times 20...<br>
+	 * Because science!
+	 */
+	public float getCoolOffConstant()
+	{
+		if (coolOffConstant == VALUE_NOT_DEFINED)
+		{
+			recalculateCoolOffConstant();
+		}
+		return coolOffConstant;
+	}
+	
+	/**
+	 * @return the 'room temperature' depending on the dimension
+	 */
+	public int getRoomTemp()
+	{
+		//TODO make biome-dependent
+		if (roomTemp == VALUE_NOT_DEFINED)
+		{
+			switch (worldObj.provider.dimensionId)
+			{
+				case (-1):
+				{
+					roomTemp = 50;
+					break;
+				}
+				case (1):
+				{
+					roomTemp = -10;
+					break;
+				}
+				default:
+				{
+					roomTemp = 20;
+				}
+			}
+		}
+		return roomTemp;
+	}
+	
 	private boolean canStartRefining()
 	{
 		if (inventory[INPUT] == null)
 		{
 			inputItem();
 		}
-		return inventory[INPUT] != null && formed && (inventory[OUTPUT_PRIMARY] == null || inventory[OUTPUT_PRIMARY].stackSize < inventory[OUTPUT_PRIMARY].getMaxStackSize()) && (inventory[OUTPUT_SECONDARY] == null || inventory[OUTPUT_SECONDARY].stackSize < inventory[OUTPUT_SECONDARY].getMaxStackSize()) && heat <= maxHeat && heat >= minHeat;
+		return inventory[INPUT] != null && formed && (inventory[OUTPUT_PRIMARY] == null || inventory[OUTPUT_PRIMARY].stackSize < inventory[OUTPUT_PRIMARY].getMaxStackSize()) && (inventory[OUTPUT_SECONDARY] == null || inventory[OUTPUT_SECONDARY].stackSize < inventory[OUTPUT_SECONDARY].getMaxStackSize()) && temperature <= maxHeat;
 	}
 	
 	private void inputItem()
@@ -325,6 +383,7 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	public void unForm()
 	{
 		formed = false;
+		recalculateCoolOffConstant();
 		progress = -1;
 		inputs.clear();
 		inputPositions.clear();
@@ -338,6 +397,11 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	public int getProgress()
 	{
 		return progress;
+	}
+
+	public float getHeat()
+	{
+		return temperature;
 	}
 
 }

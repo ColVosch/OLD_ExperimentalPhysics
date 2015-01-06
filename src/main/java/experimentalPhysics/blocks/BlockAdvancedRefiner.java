@@ -2,20 +2,25 @@ package experimentalPhysics.blocks;
 
 import java.util.List;
 
+import cpw.mods.fml.common.registry.GameRegistry;
+
+import experimentalPhysics.ExperimentalPhysics;
+import experimentalPhysics.constants.Tier;
+import experimentalPhysics.constants.Tiers;
+import experimentalPhysics.items.ItemBlockAdvancedRefiner;
+import experimentalPhysics.network.PacketController;
+import experimentalPhysics.network.handlers.HandlerCoords;
+import experimentalPhysics.network.packets.PacketCoords;
+import experimentalPhysics.tileEntitys.TileEntityAdvancedRefiner;
+import experimentalPhysics.util.MultiblockHelper;
+import experimentalPhysics.util.Position;
+
+import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import cpw.mods.fml.common.registry.GameRegistry;
-import experimentalPhysics.ExperimentalPhysics;
-import experimentalPhysics.constants.Tiers;
-import experimentalPhysics.items.ItemBlockAdvancedRefiner;
-import experimentalPhysics.network.PacketController;
-import experimentalPhysics.network.packets.PacketCoords;
-import experimentalPhysics.tileEntitys.TileEntityAdvancedRefiner;
-import experimentalPhysics.util.MultiblockHelper;
-import experimentalPhysics.util.Position;
 
 public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements ITileEntityProvider
 {
@@ -24,6 +29,7 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 	
 	public BlockAdvancedRefiner()
 	{
+		super();
 		setBlockName(NAME);
 		setBlockTextureName(ExperimentalPhysics.MODID + ":refinerAdvanced");
 		GameRegistry.registerBlock(this, ItemBlockAdvancedRefiner.class, NAME);
@@ -76,11 +82,15 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 	{	
 		if (!world.isRemote)
 		{
-			PacketController.getNetworkWrapper().sendToAll(new PacketCoords(x, y, z, (byte) 0));
+			PacketController.getNetworkWrapper().sendToAll(new PacketCoords(x, y, z, HandlerCoords.ID_FORM_ADVANCED_REFINER));
 		}
 		for (Position casing : MultiblockHelper.getCube(x, y, z, 1))
 		{
-			((BlockAdvancedRefinerPart) casing.getBlock(world)).form(world, casing.x, casing.y, casing.z, x, y, z);
+			Block block = casing.getBlock(world);
+			if (block instanceof BlockAdvancedRefinerPart)
+			{
+				((BlockAdvancedRefinerPart) block).form(world, casing.x, casing.y, casing.z, x, y, z);
+			}
 		}
 	}
 
@@ -97,8 +107,12 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 		unFormStructure(world, x, y, z);
 	}
 
-	private void unFormStructure(World world, int x, int y, int z)
+	public void unFormStructure(World world, int x, int y, int z)
 	{
+		if (!world.isRemote)
+		{
+			PacketController.getNetworkWrapper().sendToAll(new PacketCoords(x, y, z, HandlerCoords.ID_UNFORM_ADVANCED_REFINER));
+		}
 		for (Position casing : MultiblockHelper.getCube(x, y, z, 1))
 		{
 			if (casing.getBlock(world) instanceof BlockAdvancedRefinerPart)
@@ -115,10 +129,30 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 		((TileEntityAdvancedRefiner) world.getTileEntity(x, y, z)).unForm();
 	}
 
+	public float getAverageThermalConstant(World world, int x, int y, int z)
+	{
+		float sum = 0f;
+		for (Position p : MultiblockHelper.getCube(x, y, z, 1))
+		{
+			sum += p.getBlock(world) instanceof BlockAdvancedRefinerPart ? ((BlockAdvancedRefinerPart) p.getBlock(world)).getTier().getThermalConstant() : 1;
+		}
+		return sum / 27f;
+	}
 	
 	@Override
-	public int getMaxHeat()
+	public Tier getTier()
 	{
-		return Tiers.tierIron.getMaxHeat();
+		return Tiers.tierIron;
 	}
+
+	public int getMass(World world, int x, int y, int z)
+	{
+		int sum = 0;
+		for (Position p : MultiblockHelper.getCube(x, y, z, 1))
+		{
+			sum += p.getBlock(world) instanceof BlockAdvancedRefinerPart ? ((BlockAdvancedRefinerPart) p.getBlock(world)).getTier().getMassPerBlock() : 0;
+		}
+		return sum;
+	}
+
 }

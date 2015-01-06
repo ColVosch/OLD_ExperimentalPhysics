@@ -10,20 +10,18 @@ public class PacketSyncAdvancedRefiner extends PacketCoords implements IMessage
 	public short progress;
 	public short refiningSpeed;
 	public float heat;
-	public short minHeat;
 	public short maxHeat;
 	public float dustChance;
 	
 	public PacketSyncAdvancedRefiner() {}
 
-	public PacketSyncAdvancedRefiner(int x, int y, int z, boolean formed, short progress, short refiningSpeed, float heat, short minHeat, short maxHeat, float dustChance)
+	public PacketSyncAdvancedRefiner(int x, int y, int z, boolean formed, short progress, short refiningSpeed, float heat, short maxHeat, float dustChance)
 	{
 		super(x, y, z);
 		this.formed = formed;
 		this.progress = progress;
 		this.refiningSpeed = refiningSpeed;
 		this.heat = heat;
-		this.minHeat = minHeat;
 		this.maxHeat = maxHeat;
 		this.dustChance = dustChance;
 	}
@@ -35,7 +33,6 @@ public class PacketSyncAdvancedRefiner extends PacketCoords implements IMessage
 		buf.writeBoolean(formed);
 		buf.writeInt(progress);
 		buf.writeInt(refiningSpeed);
-		buf.writeFloat(minHeat);
 		buf.writeFloat(maxHeat);
 		buf.writeFloat(dustChance);
 	}
@@ -48,7 +45,6 @@ public class PacketSyncAdvancedRefiner extends PacketCoords implements IMessage
 		progress = buf.readShort();
 		refiningSpeed = buf.readShort();
 		heat = buf.readFloat();
-		minHeat = buf.readShort();
 		maxHeat = buf.readShort();
 		dustChance = buf.readFloat();
 	}

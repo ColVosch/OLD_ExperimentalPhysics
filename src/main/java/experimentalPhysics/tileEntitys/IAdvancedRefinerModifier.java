@@ -6,7 +6,6 @@ package experimentalPhysics.tileEntitys;
  */
 public interface IAdvancedRefinerModifier extends IMultiblockInteractor
 {
-	public int getMinHeatChange();
 	public int getMaxHeatChange();
 	public float getDustChanceChange();
 	public int getRefiningSpeedChange();
