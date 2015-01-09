@@ -97,7 +97,6 @@ public class TileEntityRefiner extends TileEntityStoring implements ISynchroniza
 			if (canContiniueRefining())
 			{
 				currentProcessingTime ++;
-				System.out.println((worldObj.isRemote ? "Client: " : "Server: ") + currentProcessingTime);
 			}
 			else
 			{
