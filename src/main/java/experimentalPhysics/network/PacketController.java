@@ -7,10 +7,12 @@ import cpw.mods.fml.relauncher.Side;
 import experimentalPhysics.ExperimentalPhysics;
 import experimentalPhysics.network.handlers.HandlerCoords;
 import experimentalPhysics.network.handlers.HandlerLoadInteractor;
+import experimentalPhysics.network.handlers.HandlerSetDisplayRefiner;
 import experimentalPhysics.network.handlers.HandlerSyncAdvancedRefiner;
 import experimentalPhysics.network.handlers.HandlerSyncRefiner;
 import experimentalPhysics.network.packets.PacketCoords;
 import experimentalPhysics.network.packets.PacketLoadInteractor;
+import experimentalPhysics.network.packets.PacketSetDisplayRefiner;
 import experimentalPhysics.network.packets.PacketSyncAdvancedRefiner;
 import experimentalPhysics.network.packets.PacketSyncRefiner;
 
@@ -18,12 +20,19 @@ public class PacketController
 {
 	private static SimpleNetworkWrapper network;
 
+	private static int currentDiscriminator = 0;
+
 	public static void registerPackets()
 	{
-		getNetworkWrapper().registerMessage(HandlerLoadInteractor.class, PacketLoadInteractor.class, 0, Side.CLIENT);
-		getNetworkWrapper().registerMessage(HandlerSyncAdvancedRefiner.class, PacketSyncAdvancedRefiner.class, 1, Side.CLIENT);
-		getNetworkWrapper().registerMessage(HandlerSyncRefiner.class, PacketSyncRefiner.class, 2, Side.CLIENT);
-		getNetworkWrapper().registerMessage(HandlerCoords.class, PacketCoords.class, 3, Side.CLIENT);
+		getNetworkWrapper().registerMessage(HandlerLoadInteractor.class, PacketLoadInteractor.class, getNextDiscriminator(), Side.CLIENT);
+		getNetworkWrapper().registerMessage(HandlerSyncAdvancedRefiner.class, PacketSyncAdvancedRefiner.class, getNextDiscriminator(), Side.CLIENT);
+		getNetworkWrapper().registerMessage(HandlerSyncRefiner.class, PacketSyncRefiner.class, getNextDiscriminator(), Side.CLIENT);
+		getNetworkWrapper().registerMessage(HandlerCoords.class, PacketCoords.class, getNextDiscriminator(), Side.CLIENT);
+	}
+
+	private static int getNextDiscriminator()
+	{
+		return currentDiscriminator ++;
 	}
 	
 	public static SimpleNetworkWrapper getNetworkWrapper()
