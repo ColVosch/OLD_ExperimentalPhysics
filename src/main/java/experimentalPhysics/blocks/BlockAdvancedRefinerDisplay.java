@@ -51,4 +51,10 @@ public class BlockAdvancedRefinerDisplay extends BlockAdvancedRefinerPart implem
 		player.openGui(ExperimentalPhysics.instance, 2, world, x, y, z);
 		return true;
 	}
+	
+	@Override
+	public void unForm(World world, int x, int y, int z)
+	{
+		((TileEntityAdvancedRefinerDisplay) world.getTileEntity(x, y, z)).unForm();
+	}
 }
