@@ -17,7 +17,6 @@ public class TileEntityAdvancedRefinerDisplay extends TileEntity
 	
 	public void readFromNBT(NBTTagCompound compound)
 	{
-		System.out.println(compound);
 		super.readFromNBT(compound);
 		if (compound.hasKey("refinerPos"))
 		{		
@@ -28,7 +27,6 @@ public class TileEntityAdvancedRefinerDisplay extends TileEntity
 	public void writeToNBT(NBTTagCompound compound)
 	{
 		super.writeToNBT(compound);
-		System.out.println(compound);
 		if (refinerPos != null)
 		{
 			compound.setIntArray("refinerPos", refinerPos.toIntArray());

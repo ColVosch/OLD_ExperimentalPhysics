@@ -36,7 +36,7 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	private int roomTemp = VALUE_NOT_DEFINED;
 	private short maxHeat = 500;
 	private float averageThermConductivity = 80;
-	private float dustChance = 0f;
+	private float dustChance = 1f;
 	private List<IMultiblockInput> inputs = new ArrayList<IMultiblockInput>();;
 	private List<Position> inputPositions = new ArrayList<Position>();;
 	private List<IMultiblockOutput> outputs = new ArrayList<IMultiblockOutput>();;
@@ -121,14 +121,12 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	
 	public void synchronize(PacketSyncAdvancedRefiner message)
 	{
-		System.out.println("synchronizing advancedRefiner");
 		formed = message.formed;
 		progress = message.progress;
 		refiningSpeed = message.refiningSpeed;
 		temperature = message.heat;
 		maxHeat = message.maxHeat;
-		dustChance = message.dustChance;	
-		System.out.println(message);
+		dustChance = message.dustChance;
 	}
 
 	
