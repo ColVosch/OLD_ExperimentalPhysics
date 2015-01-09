@@ -2,6 +2,7 @@ package experimentalPhysics.tileEntitys;
 
 import experimentalPhysics.util.Position;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityAdvancedRefinerDisplay extends TileEntity
@@ -10,7 +11,22 @@ public class TileEntityAdvancedRefinerDisplay extends TileEntity
 	
 	private Position refinerPos;
 	
+	 public void readFromNBT(NBTTagCompound compound)
+	 {
+		 refinerPos = new Position(compound.getIntArray("refinerPos"));
+	 }
+
+	 public void writeToNBT(NBTTagCompound compound)
+	 {
+		 compound.setIntArray("refinerPos", refinerPos.toIntArray());
+	 }
+	
 	public void form(Position refinerPos)
+	{
+		setRefiner(refinerPos);
+	}
+	
+	public void setRefiner(Position refinerPos)
 	{
 		this.refinerPos = refinerPos;
 	}
@@ -48,6 +64,11 @@ public class TileEntityAdvancedRefinerDisplay extends TileEntity
 	public float getHeat()
 	{
 		return hasRefiner() ? getRefiner().getHeat() : -1;
+	}
+
+	public Position getRefinerPos()
+	{
+		return refinerPos;
 	}
 	
 }
