@@ -7,12 +7,10 @@ import cpw.mods.fml.relauncher.Side;
 import experimentalPhysics.ExperimentalPhysics;
 import experimentalPhysics.network.handlers.HandlerCoords;
 import experimentalPhysics.network.handlers.HandlerLoadInteractor;
-import experimentalPhysics.network.handlers.HandlerSetDisplayRefiner;
 import experimentalPhysics.network.handlers.HandlerSyncAdvancedRefiner;
 import experimentalPhysics.network.handlers.HandlerSyncRefiner;
 import experimentalPhysics.network.packets.PacketCoords;
 import experimentalPhysics.network.packets.PacketLoadInteractor;
-import experimentalPhysics.network.packets.PacketSetDisplayRefiner;
 import experimentalPhysics.network.packets.PacketSyncAdvancedRefiner;
 import experimentalPhysics.network.packets.PacketSyncRefiner;
 

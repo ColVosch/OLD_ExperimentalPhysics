@@ -1,8 +1,12 @@
 package experimentalPhysics.tileEntitys;
 
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+
 import experimentalPhysics.util.Position;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityAdvancedRefinerDisplay extends TileEntity
@@ -11,16 +15,39 @@ public class TileEntityAdvancedRefinerDisplay extends TileEntity
 	
 	private Position refinerPos;
 	
-	 public void readFromNBT(NBTTagCompound compound)
-	 {
-		 refinerPos = new Position(compound.getIntArray("refinerPos"));
-	 }
+	public void readFromNBT(NBTTagCompound compound)
+	{
+		System.out.println(compound);
+		super.readFromNBT(compound);
+		refinerPos = new Position(compound.getIntArray("refinerPos"));
+	}
 
-	 public void writeToNBT(NBTTagCompound compound)
-	 {
-		 compound.setIntArray("refinerPos", refinerPos.toIntArray());
-	 }
+	public void writeToNBT(NBTTagCompound compound)
+	{
+		super.writeToNBT(compound);
+		System.out.println(compound);
+		if (refinerPos != null)
+		{
+			compound.setIntArray("refinerPos", refinerPos.toIntArray());
+		}
+	}
 	
+	@Override
+    public S35PacketUpdateTileEntity getDescriptionPacket() 
+	{
+        NBTTagCompound tag = new NBTTagCompound();
+        this.writeToNBT(tag);
+        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, tag);
+    }
+	
+	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+    {
+		if (worldObj.isRemote)
+		{
+			this.readFromNBT(pkt.func_148857_g());
+		}
+    }
+	 
 	public void form(Position refinerPos)
 	{
 		setRefiner(refinerPos);
@@ -69,6 +96,11 @@ public class TileEntityAdvancedRefinerDisplay extends TileEntity
 	public Position getRefinerPos()
 	{
 		return refinerPos;
+	}
+
+	public void unForm()
+	{
+		setRefiner((Position) null);
 	}
 	
 }
