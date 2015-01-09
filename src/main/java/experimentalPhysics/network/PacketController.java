@@ -6,11 +6,9 @@ import cpw.mods.fml.relauncher.Side;
 
 import experimentalPhysics.ExperimentalPhysics;
 import experimentalPhysics.network.handlers.HandlerCoords;
-import experimentalPhysics.network.handlers.HandlerLoadInteractor;
 import experimentalPhysics.network.handlers.HandlerSyncAdvancedRefiner;
 import experimentalPhysics.network.handlers.HandlerSyncRefiner;
 import experimentalPhysics.network.packets.PacketCoords;
-import experimentalPhysics.network.packets.PacketLoadInteractor;
 import experimentalPhysics.network.packets.PacketSyncAdvancedRefiner;
 import experimentalPhysics.network.packets.PacketSyncRefiner;
 
@@ -22,7 +20,6 @@ public class PacketController
 
 	public static void registerPackets()
 	{
-		getNetworkWrapper().registerMessage(HandlerLoadInteractor.class, PacketLoadInteractor.class, getNextDiscriminator(), Side.CLIENT);
 		getNetworkWrapper().registerMessage(HandlerSyncAdvancedRefiner.class, PacketSyncAdvancedRefiner.class, getNextDiscriminator(), Side.CLIENT);
 		getNetworkWrapper().registerMessage(HandlerSyncRefiner.class, PacketSyncRefiner.class, getNextDiscriminator(), Side.CLIENT);
 		getNetworkWrapper().registerMessage(HandlerCoords.class, PacketCoords.class, getNextDiscriminator(), Side.CLIENT);
