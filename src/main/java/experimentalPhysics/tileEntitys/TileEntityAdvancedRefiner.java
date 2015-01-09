@@ -9,13 +9,14 @@ import experimentalPhysics.constants.ExpPhysConfig;
 import experimentalPhysics.items.ModItems;
 import experimentalPhysics.network.PacketController;
 import experimentalPhysics.network.handlers.ISynchronizable;
-import experimentalPhysics.network.packets.PacketLoadInteractor;
 import experimentalPhysics.network.packets.PacketSyncAdvancedRefiner;
 import experimentalPhysics.util.Position;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 
 public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISynchronizable<PacketSyncAdvancedRefiner>
 {
@@ -82,21 +83,18 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	
 	private void initInteractorsFromCoords()
 	{
-		assert !worldObj.isRemote : "[TileEntityAdvancedRefiner] [initInteractorsFromCoords] This should only be called on server side!";
+		assert !worldObj.isRemote : "Everithing is fine!";
 		for (Position p : inputPositions)
 		{
 			inputs.add((IMultiblockInput) worldObj.getTileEntity(p.x, p.y, p.z));
-			PacketController.getNetworkWrapper().sendToAll(new PacketLoadInteractor(xCoord, yCoord, zCoord, p.x, p.y, p.z));
 		}
 		for (Position p : outputPositions)
 		{
 			outputs.add((IMultiblockOutput) worldObj.getTileEntity(p.x, p.y, p.z));
-			PacketController.getNetworkWrapper().sendToAll(new PacketLoadInteractor(xCoord, yCoord, zCoord, p.x, p.y, p.z));
 		}			
 		for (Position p : modifierPositions)
 		{
 			modifiers.add((IAdvancedRefinerModifier) worldObj.getTileEntity(p.x, p.y, p.z));
-			PacketController.getNetworkWrapper().sendToAll(new PacketLoadInteractor(xCoord, yCoord, zCoord, p.x, p.y, p.z));
 		}
 	}
 	
@@ -104,6 +102,22 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	{
 		coolOffConstant = ((float) ExpPhysConfig.getCoolDownFactor()) * ((float) ((((BlockAdvancedRefiner) getPosition().getBlock(worldObj)).getAverageThermalConstant(worldObj, xCoord, yCoord, zCoord))) / ((float) ((BlockAdvancedRefiner) getPosition().getBlock(worldObj)).getMass(worldObj, xCoord, yCoord, zCoord)) * ((float) Math.sqrt(14f/Math.PI)));
 	}
+
+	@Override
+    public S35PacketUpdateTileEntity getDescriptionPacket() 
+	{
+        NBTTagCompound tag = new NBTTagCompound();
+        this.writeToNBT(tag);
+        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, tag);
+    }
+	
+	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+    {
+		if (worldObj.isRemote)
+		{
+			this.readFromNBT(pkt.func_148857_g());
+		}
+    }
 	
 	public void synchronize(PacketSyncAdvancedRefiner message)
 	{
@@ -305,10 +319,10 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 				}
 			}
 		}
-		else if (!worldObj.isRemote)
-		{
+//		else if (!worldObj.isRemote)
+//		{
 			initInteractorsFromCoords();
-		}
+//		}
 	}
 	
 	private void process()
@@ -365,7 +379,7 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	
 	private boolean outputItem(ItemStack outputStack)
 	{
-		if (outputs.isEmpty() && !worldObj.isRemote)
+		if (outputs.isEmpty())// && !worldObj.isRemote)
 		{
 			initInteractorsFromCoords();
 		}
