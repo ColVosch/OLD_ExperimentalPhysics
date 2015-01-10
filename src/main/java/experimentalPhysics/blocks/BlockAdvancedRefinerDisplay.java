@@ -9,6 +9,7 @@ import experimentalPhysics.tileEntitys.TileEntityAdvancedRefinerDisplay;
 import experimentalPhysics.util.Position;
 
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -21,9 +22,24 @@ public class BlockAdvancedRefinerDisplay extends BlockAdvancedRefinerPart implem
 	public BlockAdvancedRefinerDisplay()
 	{
 		setBlockName(NAME);
-		setBlockTextureName(ExperimentalPhysics.MODID + ":refinerAdvanced");
+		setBlockTextureName(ExperimentalPhysics.MODID + ":advancedRefinerDisplayFull");
 		GameRegistry.registerBlock(this, NAME);
 		GameRegistry.registerTileEntity(TileEntityAdvancedRefinerDisplay.class, TileEntityAdvancedRefinerDisplay.NAME);
+	}
+	
+	@Override
+	public void registerBlockIcons(IIconRegister iconRegister)
+	{
+		icons[3] =  iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerDisplayUpLeft");
+		icons[7] =  iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerDisplayUp");
+		icons[6] =  iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerDisplayUpRight");
+		icons[11] = iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerDisplayLeft");
+		icons[15] = iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerDisplayMiddle");
+		icons[14] = iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerDisplayRight");
+		icons[9] =  iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerDisplayDownLeft");
+		icons[13] = iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerDisplayDown");
+		icons[12] = iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerDisplayDownRight");	
+		icons[0] =  iconRegister.registerIcon(ExperimentalPhysics.MODID + ":advancedRefinerDisplayFull");
 	}
 	
 	@Override
@@ -55,6 +71,7 @@ public class BlockAdvancedRefinerDisplay extends BlockAdvancedRefinerPart implem
 	@Override
 	public void unForm(World world, int x, int y, int z)
 	{
+		super.unForm(world, x, y, z);
 		((TileEntityAdvancedRefinerDisplay) world.getTileEntity(x, y, z)).unForm();
 	}
 }
