@@ -31,18 +31,20 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	private boolean formed = false;
 	private short progress = -1;
 	private short refiningSpeed = 100;
-	private float temperature = 350;
+	private float temperature = 20;
 	private float coolOffConstant = VALUE_NOT_DEFINED;
 	private int roomTemp = VALUE_NOT_DEFINED;
 	private short maxHeat = 500;
 	private float averageThermConductivity = 80;
-	private float dustChance = 1f;
-	private List<IMultiblockInput> inputs = new ArrayList<IMultiblockInput>();;
-	private List<Position> inputPositions = new ArrayList<Position>();;
-	private List<IMultiblockOutput> outputs = new ArrayList<IMultiblockOutput>();;
-	private List<Position> outputPositions = new ArrayList<Position>();;
-	private List<IAdvancedRefinerModifier> modifiers = new ArrayList<IAdvancedRefinerModifier>();;
-	private List<Position> modifierPositions = new ArrayList<Position>();;
+	private float dustChance = 0f;
+	private List<IMultiblockInput> inputs = new ArrayList<IMultiblockInput>();
+	private List<Position> inputPositions = new ArrayList<Position>();
+	private List<IMultiblockOutput> outputs = new ArrayList<IMultiblockOutput>();
+	private List<Position> outputPositions = new ArrayList<Position>();
+	private List<IAdvancedRefinerModifier> modifiers = new ArrayList<IAdvancedRefinerModifier>();
+	private List<Position> modifierPositions = new ArrayList<Position>();
+	private List<IAdvancedRefinerHeater> heaters = new ArrayList<IAdvancedRefinerHeater>();
+	private List<Position> heaterPositions = new ArrayList<Position>();
 	private Random rndGen = new Random();
 
 	
@@ -57,11 +59,13 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	{
 		super.readFromNBT(tagCompound);
 		progress = tagCompound.getShort("progress");
+		temperature = tagCompound.getFloat("temperature");
 		formed = tagCompound.getBoolean("formed");
 		
 		readPositionListFromNBT(tagCompound.getCompoundTag("inputCoords"), inputPositions);
 		readPositionListFromNBT(tagCompound.getCompoundTag("outputCoords"), outputPositions);
 		readPositionListFromNBT(tagCompound.getCompoundTag("modifierCoords"), modifierPositions);
+		readPositionListFromNBT(tagCompound.getCompoundTag("heaterCoords"), heaterPositions);
 	}
 	
 	private void readPositionListFromNBT(NBTTagCompound coordCompound, List<Position> posList)
@@ -96,11 +100,16 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		{
 			modifiers.add((IAdvancedRefinerModifier) worldObj.getTileEntity(p.x, p.y, p.z));
 		}
+		for (Position p : heaterPositions)
+		{
+			heaters.add((IAdvancedRefinerHeater) worldObj.getTileEntity(p.x, p.y, p.z));
+		}
 	}
 	
-	private void recalculateCoolOffConstant()
+	public void recalculateConstants()
 	{
 		coolOffConstant = ((float) ExpPhysConfig.getCoolDownFactor()) * ((float) ((((BlockAdvancedRefiner) getPosition().getBlock(worldObj)).getAverageThermalConstant(worldObj, xCoord, yCoord, zCoord))) / ((float) ((BlockAdvancedRefiner) getPosition().getBlock(worldObj)).getMass(worldObj, xCoord, yCoord, zCoord)) * ((float) Math.sqrt(14f/Math.PI)));
+		maxHeat = ((BlockAdvancedRefiner) getPosition().getBlock(worldObj)).getMaxStructureHeat(worldObj, xCoord, yCoord, zCoord);
 	}
 
 	@Override
@@ -135,19 +144,24 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	{
 		super.writeToNBT(tagCompound);
 		tagCompound.setInteger("progress", progress);
+		tagCompound.setFloat("temperature", temperature);
 		tagCompound.setBoolean("formed", formed);
 		
-		if (inputs != null)
+		if (inputs != null && !inputs.isEmpty())
 		{
 			tagCompound.setTag("inputCoords", writePositionListToNBT(inputPositions));
 		}
-		if (outputs != null)
+		if (outputs != null && !outputs.isEmpty())
 		{
 			tagCompound.setTag("outputCoords", writePositionListToNBT(outputPositions));
 		}
-		if (modifiers != null)
+		if (modifiers != null && !modifiers.isEmpty())
 		{
 			tagCompound.setTag("modifierCoords", writePositionListToNBT(modifierPositions));
+		}
+		if (heaters != null && !heaters.isEmpty())
+		{
+			tagCompound.setTag("heaterCoords", writePositionListToNBT(heaterPositions));
 		}
 	}
 	
@@ -171,7 +185,7 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	public void form()
 	{
 		formed = true;
-		recalculateCoolOffConstant();
+		recalculateConstants();
 	}
 	
 	public void registerInput(IMultiblockInput input)
@@ -202,7 +216,16 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 			computeAttributes();
 		}
 	}
-		
+	
+	public void registerHeater(IAdvancedRefinerHeater heater)
+	{
+		if (!heaters.contains(heater))
+		{
+			heaters.add(heater);
+			heaterPositions.add(new Position(heater.getCoords()));
+		}
+	}
+	
 	private void computeAttributes()
 	{
 		if (modifiers != null)
@@ -211,7 +234,7 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 			{
 				refiningSpeed += modifier.getRefiningSpeedChange();
 				maxHeat += modifier.getMaxHeatChange();
-				dustChance *= 1 + modifier.getDustChanceChange();
+				dustChance += modifier.getDustChanceChange();
 			}
 		}
 	}
@@ -221,27 +244,29 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	public void updateEntity()
 	{
 		coolOff();
-		if (progress == -1)
+		if (formed)
 		{
-			if (canStartRefining())
+			increaseHeat();
+			if (progress == -1)
 			{
-				progress = 0;
+				if (canStartRefining())
+				{
+					progress = 0;
+				}
 			}
-		}
-		
-		if (progress >= 0 && progress < REQUIRED_PROGRESS)
-		{
-			progress += refiningSpeed;
-		}
-		
-		if (progress >= REQUIRED_PROGRESS)
-		{
-			if (!worldObj.isRemote)
+			if (progress >= 0 && progress < REQUIRED_PROGRESS)
 			{
-				PacketController.getNetworkWrapper().sendToAll(new PacketSyncAdvancedRefiner(xCoord, yCoord, zCoord, formed, progress, refiningSpeed, temperature, maxHeat, dustChance));
+				progress += (int) (1f + ((float) refiningSpeed * temperature / 100));
 			}
-			process();
-			progress = -1;
+			if (progress >= REQUIRED_PROGRESS)
+			{
+				if (!worldObj.isRemote)
+				{
+					PacketController.getNetworkWrapper().sendToAll(new PacketSyncAdvancedRefiner(xCoord, yCoord, zCoord, formed, progress, refiningSpeed, temperature, maxHeat, dustChance));
+				}
+				process();
+				progress = -1;
+			}
 		}	
 	}
 	
@@ -250,6 +275,14 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		temperature -= getCoolOffConstant() * (temperature - getRoomTemp());
 	}
 
+	private void increaseHeat()
+	{
+		for (IAdvancedRefinerHeater heater : heaters)
+		{
+			temperature += heater.getTemperatureIncrease();
+		}
+	}
+	
 	/**
 	 * @return the average thermal conductivity of the structure times 54 divided by
 	 * the mass of the structure times the average thermal capacity of the structure
@@ -260,7 +293,7 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	{
 		if (coolOffConstant == VALUE_NOT_DEFINED)
 		{
-			recalculateCoolOffConstant();
+			recalculateConstants();
 		}
 		return coolOffConstant;
 	}
@@ -300,9 +333,18 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		{
 			inputItem();
 		}
-		return inventory[INPUT] != null && formed && (inventory[OUTPUT_PRIMARY] == null || inventory[OUTPUT_PRIMARY].stackSize < inventory[OUTPUT_PRIMARY].getMaxStackSize()) && (inventory[OUTPUT_SECONDARY] == null || inventory[OUTPUT_SECONDARY].stackSize < inventory[OUTPUT_SECONDARY].getMaxStackSize()) && temperature <= maxHeat;
+		return inventory[INPUT] != null && formed && (inventory[OUTPUT_PRIMARY] == null || inventory[OUTPUT_PRIMARY].stackSize < inventory[OUTPUT_PRIMARY].getMaxStackSize()) && (inventory[OUTPUT_SECONDARY] == null || inventory[OUTPUT_SECONDARY].stackSize < inventory[OUTPUT_SECONDARY].getMaxStackSize()) && temperature <= getMaxHeat();
 	}
 	
+	private float getMaxHeat()
+	{
+		if (maxHeat == VALUE_NOT_DEFINED)
+		{
+			recalculateConstants();
+		}
+		return maxHeat;
+	}
+
 	private void inputItem()
 	{
 		if (!inputs.isEmpty())
@@ -317,10 +359,10 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 				}
 			}
 		}
-//		else if (!worldObj.isRemote)
-//		{
+		else
+		{
 			initInteractorsFromCoords();
-//		}
+		}
 	}
 	
 	private void process()
@@ -395,14 +437,16 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	public void unForm()
 	{
 		formed = false;
-		recalculateCoolOffConstant();
 		progress = -1;
+		
 		inputs.clear();
 		inputPositions.clear();
 		outputs.clear();
 		outputPositions.clear();
 		modifiers.clear();
 		modifierPositions.clear();
+		heaters.clear();
+		heaterPositions.clear();
 	}
 
 	

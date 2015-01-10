@@ -12,6 +12,7 @@ import experimentalPhysics.network.PacketController;
 import experimentalPhysics.network.handlers.HandlerCoords;
 import experimentalPhysics.network.packets.PacketCoords;
 import experimentalPhysics.tileEntitys.TileEntityAdvancedRefiner;
+import experimentalPhysics.tileEntitys.TileEntityStoring;
 import experimentalPhysics.util.MultiblockHelper;
 import experimentalPhysics.util.Position;
 
@@ -57,6 +58,7 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 	
 	public void casingAdded(World world, int x, int y, int z)
 	{
+		((TileEntityAdvancedRefiner) world.getTileEntity(x, y, z)).recalculateConstants();
 		if (canForm(world, x, y, z))
 		{
 			formStructure(world, x, y, z);
@@ -104,6 +106,7 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 	
 	public void casingRemoved(World world, int x, int y, int z)
 	{
+		((TileEntityAdvancedRefiner) world.getTileEntity(x, y, z)).recalculateConstants();
 		unFormStructure(world, x, y, z);
 	}
 
@@ -129,6 +132,20 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 		((TileEntityAdvancedRefiner) world.getTileEntity(x, y, z)).unForm();
 	}
 
+	@Override
+	public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+    {
+		((TileEntityStoring) world.getTileEntity(x, y, z)).dropItems();
+		super.breakBlock(world, x, y, z, block, meta);
+    }
+
+	
+	@Override
+	public Tier getTier()
+	{
+		return Tiers.tierIron;
+	}
+
 	public float getAverageThermalConstant(World world, int x, int y, int z)
 	{
 		float sum = 0f;
@@ -139,12 +156,6 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 		return sum / 27f;
 	}
 	
-	@Override
-	public Tier getTier()
-	{
-		return Tiers.tierIron;
-	}
-
 	public int getMass(World world, int x, int y, int z)
 	{
 		int sum = 0;
@@ -153,6 +164,20 @@ public class BlockAdvancedRefiner extends BlockAdvancedRefinerPart implements IT
 			sum += p.getBlock(world) instanceof BlockAdvancedRefinerPart ? ((BlockAdvancedRefinerPart) p.getBlock(world)).getTier().getMassPerBlock() : 0;
 		}
 		return sum;
+	}
+
+	public short getMaxStructureHeat(World world, int xCoord, int yCoord, int zCoord)
+	{
+		short maxHeat = Short.MIN_VALUE;
+		for (Position pos : MultiblockHelper.getCube(xCoord, yCoord, zCoord, 1))
+		{
+			Block block = pos.getBlock(world);
+			if (block instanceof BlockAdvancedRefinerPart)
+			{
+				maxHeat = (short) Math.max(maxHeat, ((BlockAdvancedRefinerPart) block).getTier().getMaxHeat());
+			}
+		}
+		return maxHeat;
 	}
 
 }

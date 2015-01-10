@@ -4,12 +4,14 @@ import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 
 import experimentalPhysics.ExperimentalPhysics;
+import experimentalPhysics.containers.ContainerAdvancedRefinerHeaterFurnace;
 import experimentalPhysics.containers.ContainerAdvancedRefinerInsertionLock;
 import experimentalPhysics.containers.ContainerEmpty;
 import experimentalPhysics.containers.ContainerRefiner;
 import experimentalPhysics.tileEntitys.TileEntityAdvancedRefinerDisplay;
-import experimentalPhysics.tileEntitys.TileEntityAdvancedRefinerInsertionLock;
+import experimentalPhysics.tileEntitys.TileEntityAdvancedRefinerHeaterFurnace;
 import experimentalPhysics.tileEntitys.TileEntityRefiner;
+import experimentalPhysics.tileEntitys.TileEntityStoring;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -20,6 +22,7 @@ public class GuiHandler implements IGuiHandler
 	public static final int ID_REFINER = 0;
 	public static final int ID_ADVANCED_REFINER_INSERTION_LOCK = 1;
 	public static final int ID_ADVANCED_REFINER_DISPLAY = 2;
+	public static final int ID_ADVANCED_REFINER_HEATER_FURNACE = 3;
 	
 	public static void register()
 	{
@@ -38,11 +41,15 @@ public class GuiHandler implements IGuiHandler
 			}
 			case ID_ADVANCED_REFINER_INSERTION_LOCK:
 			{
-				return new ContainerAdvancedRefinerInsertionLock(player, (TileEntityAdvancedRefinerInsertionLock) tile);
+				return new ContainerAdvancedRefinerInsertionLock(player, (TileEntityStoring) tile);
 			}
 			case ID_ADVANCED_REFINER_DISPLAY:
 			{
 				return new ContainerEmpty();
+			}
+			case ID_ADVANCED_REFINER_HEATER_FURNACE:
+			{
+				return new ContainerAdvancedRefinerHeaterFurnace(player, (TileEntityAdvancedRefinerHeaterFurnace) tile);
 			}
 			default:
 			{
@@ -63,11 +70,15 @@ public class GuiHandler implements IGuiHandler
 			}
 			case ID_ADVANCED_REFINER_INSERTION_LOCK:
 			{
-				return new GuiAdvancedRefinerInsertionLock(player, (TileEntityAdvancedRefinerInsertionLock) tile);
+				return new GuiAdvancedRefinerInsertionLock(player, (TileEntityStoring) tile);
 			}
 			case ID_ADVANCED_REFINER_DISPLAY:
 			{
-				return new GuiAdvancedRefinerDisplay(((TileEntityAdvancedRefinerDisplay) world.getTileEntity(x, y, z)));
+				return new GuiAdvancedRefinerDisplay(((TileEntityAdvancedRefinerDisplay) tile));
+			}
+			case ID_ADVANCED_REFINER_HEATER_FURNACE:
+			{
+				return new GuiAdvancedRefinerHeaterFurnace(player, (TileEntityAdvancedRefinerHeaterFurnace) tile);
 			}
 			default:
 			{
