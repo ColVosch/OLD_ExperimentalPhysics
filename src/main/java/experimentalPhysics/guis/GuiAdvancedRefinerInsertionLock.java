@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 import experimentalPhysics.ExperimentalPhysics;
 import experimentalPhysics.containers.ContainerAdvancedRefinerInsertionLock;
-import experimentalPhysics.tileEntitys.TileEntityAdvancedRefinerInsertionLock;
+import experimentalPhysics.tileEntitys.TileEntityStoring;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -16,7 +16,7 @@ import net.minecraft.util.StatCollector;
 
 public class GuiAdvancedRefinerInsertionLock extends GuiContainer
 {
-	public GuiAdvancedRefinerInsertionLock(EntityPlayer player, TileEntityAdvancedRefinerInsertionLock tileInsertionLock)
+	public GuiAdvancedRefinerInsertionLock(EntityPlayer player, TileEntityStoring tileInsertionLock)
 	{
 		super(new ContainerAdvancedRefinerInsertionLock(player, tileInsertionLock));
 	}
