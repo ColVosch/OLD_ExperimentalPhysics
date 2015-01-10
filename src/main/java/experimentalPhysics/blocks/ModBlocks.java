@@ -16,6 +16,7 @@ public final class ModBlocks
 	public static Block advancedRefinerCasing;
 	public static Block advancedRefinerInsertionLock;
 	public static Block advancedRefinerDisplay;
+	public static Block advancedRefinerHeaterFurnace;
 	
 	public static void register()
 	{
@@ -25,6 +26,7 @@ public final class ModBlocks
 		modBlocks.add(advancedRefinerCasing = new BlockAdvancedRefinerCasing());
 		modBlocks.add(advancedRefinerInsertionLock = new BlockAdvancedRefinerInsertionLock());
 		modBlocks.add(advancedRefinerDisplay = new BlockAdvancedRefinerDisplay());
+		modBlocks.add(advancedRefinerHeaterFurnace = new BlockAdvancedRefinerHeaterFurnace());
 		
 
 		fillCreativeTab(ExperimentalPhysicsCreativeTab.instance(), modBlocks);		

@@ -10,7 +10,7 @@ public class ContainerAdvancedRefinerInsertionLock extends ModContainerBasic
 {	
 	private TileEntityStoring tileInsertionLock;
 
-	public ContainerAdvancedRefinerInsertionLock(EntityPlayer player, TileEntityAdvancedRefinerInsertionLock tileInsertionLock)
+	public ContainerAdvancedRefinerInsertionLock(EntityPlayer player, TileEntityStoring tileInsertionLock)
 	{
 		this.tileInsertionLock = tileInsertionLock;
 		
