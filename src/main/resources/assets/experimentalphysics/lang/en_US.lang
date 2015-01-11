@@ -6,7 +6,7 @@ propperty.tier1MaxHeat.comment=The highest temperature at witch the iron tech ti
 container.refiner=Refiner
 container.advancedRefinerInsertionLock=Advanced Refiner Insertion Lock
 
-message.refinerCoreToClose=Advanced Refiner Cores must be at least 3 blocks away from each other
+message.refinerCoreToClose=Advanced Refiner Cores have to be placed at least 3 blocks away from each other
 
 item.itemEnderPearlCore.name=Ender Pearl Core
 item.itemEnderPearlReusable.name=Reusable Ender Pearl
@@ -17,3 +17,4 @@ tile.blockAdvancedRefinerCasing.name=Advanced Refiner Casing
 tile.blockAdvancedRefiner.name=Advanced Refiner Core
 tile.blockAdvancedRefinerInsertionLock.name=Advanced Refiner Insertion Lock
 tile.blockAdvancedRefinerDisplay.name=Advanced Refiner Display
+tile.blockAdvancedRefinerHeaterFurnace.name=Advanced Refiner Furnace Heater

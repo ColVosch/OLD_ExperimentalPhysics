@@ -9,7 +9,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 
-public class TileEntityAdvancedRefinerDisplay extends TileEntity
+public class TileEntityAdvancedRefinerDisplay extends TileEntityBasic
 {
 	public static final String NAME = "tileEntityAdvancedRefinerDisplay";
 	
@@ -33,21 +33,6 @@ public class TileEntityAdvancedRefinerDisplay extends TileEntity
 		}
 	}
 	
-	@Override
-    public S35PacketUpdateTileEntity getDescriptionPacket() 
-	{
-        NBTTagCompound tag = new NBTTagCompound();
-        this.writeToNBT(tag);
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, tag);
-    }
-	
-	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
-    {
-		if (worldObj.isRemote)
-		{
-			this.readFromNBT(pkt.func_148857_g());
-		}
-    }
 	 
 	public void form(Position refinerPos)
 	{
@@ -61,7 +46,7 @@ public class TileEntityAdvancedRefinerDisplay extends TileEntity
 
 	public boolean hasRefiner()
 	{
-		return refinerPos != null;
+		return refinerPos != null && refinerPos.getTileEntity(worldObj) != null;
 	}
 	
 	public TileEntityAdvancedRefiner getRefiner()
@@ -72,7 +57,7 @@ public class TileEntityAdvancedRefinerDisplay extends TileEntity
 	public float getProgressPercentage()
 	{
 		TileEntityAdvancedRefiner refiner = getRefiner();
-		if (hasRefiner())
+		if (refiner != null)
 		{
 			if (refiner.getProgress() == -1)
 			{
