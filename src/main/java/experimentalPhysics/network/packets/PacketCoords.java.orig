@@ -4,22 +4,35 @@ import io.netty.buffer.ByteBuf;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
-
+<<<<<<< HEAD:src/main/java/experimentalPhysics/network/packets/PacketCoords.java
+=======
+//TODO generalize and rename
+>>>>>>> 843e3a3fa652da5648d0f015879c6586c02cf360:src/main/java/experimentalPhysics/network/packets/PacketCoords.java
 /**This class implements {@link IMessage} and stores a set of coordinates.
  * @author ColVosch
  *
  */
+<<<<<<< HEAD:src/main/java/experimentalPhysics/network/packets/PacketCoords.java
 public class PacketCoords implements IMessage
+=======
+public abstract class PacketCoords implements IMessage
+>>>>>>> 843e3a3fa652da5648d0f015879c6586c02cf360:src/main/java/experimentalPhysics/network/packets/PacketCoords.java
 {
 	public int x;
 	public int y;
 	public int z;
 	
+<<<<<<< HEAD:src/main/java/experimentalPhysics/network/packets/PacketCoords.java
 	public byte id;
 	
 	public PacketCoords() {}
 	
 	public PacketCoords(int x, int y, int z, byte id)
+=======
+	public PacketCoords() {}
+	
+	public PacketCoords(int x, int y, int z)
+>>>>>>> 843e3a3fa652da5648d0f015879c6586c02cf360:src/main/java/experimentalPhysics/network/packets/PacketCoords.java
 	{
 		this.x = x;
 		this.y = y;
