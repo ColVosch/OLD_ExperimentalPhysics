@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import cpw.mods.fml.common.FMLLog;
+
 import experimentalPhysics.blocks.BlockAdvancedRefiner;
 import experimentalPhysics.constants.ExpPhysConfig;
 import experimentalPhysics.items.ModItems;
@@ -12,11 +14,11 @@ import experimentalPhysics.network.handlers.ISynchronizable;
 import experimentalPhysics.network.packets.PacketSyncAdvancedRefiner;
 import experimentalPhysics.util.Position;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISynchronizable<PacketSyncAdvancedRefiner>
 {
@@ -30,7 +32,7 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	
 	private boolean formed = false;
 	private short progress = -1;
-	private short refiningSpeed = 100;
+	private short refiningSpeed = 1;
 	private float temperature = 20;
 	private float coolOffConstant = VALUE_NOT_DEFINED;
 	private int roomTemp = VALUE_NOT_DEFINED;
@@ -87,22 +89,38 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	
 	private void initInteractorsFromCoords()
 	{
-		assert !worldObj.isRemote : "Everithing is fine!";
+		TileEntity tile;
 		for (Position p : inputPositions)
 		{
-			inputs.add((IMultiblockInput) worldObj.getTileEntity(p.x, p.y, p.z));
+			tile = p.getTileEntity(worldObj);
+			if (!inputs.contains(tile))
+			{
+				inputs.add((IMultiblockInput) tile);
+			}
 		}
 		for (Position p : outputPositions)
 		{
-			outputs.add((IMultiblockOutput) worldObj.getTileEntity(p.x, p.y, p.z));
+			tile = p.getTileEntity(worldObj);
+			if (!outputs.contains(tile))
+			{
+				outputs.add((IMultiblockOutput) tile);
+			}
 		}			
 		for (Position p : modifierPositions)
 		{
-			modifiers.add((IAdvancedRefinerModifier) worldObj.getTileEntity(p.x, p.y, p.z));
+			tile = p.getTileEntity(worldObj);
+			if (!modifiers.contains(tile))
+			{
+				modifiers.add((IAdvancedRefinerModifier) tile);
+			}
 		}
 		for (Position p : heaterPositions)
 		{
-			heaters.add((IAdvancedRefinerHeater) worldObj.getTileEntity(p.x, p.y, p.z));
+			tile = p.getTileEntity(worldObj);
+			if (!heaters.contains(tile))
+			{
+				heaters.add((IAdvancedRefinerHeater) tile);
+			}
 		}
 	}
 	
@@ -111,22 +129,6 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		coolOffConstant = ((float) ExpPhysConfig.getCoolDownFactor()) * ((float) ((((BlockAdvancedRefiner) getPosition().getBlock(worldObj)).getAverageThermalConstant(worldObj, xCoord, yCoord, zCoord))) / ((float) ((BlockAdvancedRefiner) getPosition().getBlock(worldObj)).getMass(worldObj, xCoord, yCoord, zCoord)) * ((float) Math.sqrt(14f/Math.PI)));
 		maxHeat = ((BlockAdvancedRefiner) getPosition().getBlock(worldObj)).getMaxStructureHeat(worldObj, xCoord, yCoord, zCoord);
 	}
-
-	@Override
-    public S35PacketUpdateTileEntity getDescriptionPacket() 
-	{
-        NBTTagCompound tag = new NBTTagCompound();
-        this.writeToNBT(tag);
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, tag);
-    }
-	
-	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
-    {
-		if (worldObj.isRemote)
-		{
-			this.readFromNBT(pkt.func_148857_g());
-		}
-    }
 	
 	public void synchronize(PacketSyncAdvancedRefiner message)
 	{
@@ -147,19 +149,19 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		tagCompound.setFloat("temperature", temperature);
 		tagCompound.setBoolean("formed", formed);
 		
-		if (inputs != null && !inputs.isEmpty())
+		if (inputPositions != null && !inputPositions.isEmpty())
 		{
 			tagCompound.setTag("inputCoords", writePositionListToNBT(inputPositions));
 		}
-		if (outputs != null && !outputs.isEmpty())
+		if (outputPositions != null && !outputPositions.isEmpty())
 		{
 			tagCompound.setTag("outputCoords", writePositionListToNBT(outputPositions));
 		}
-		if (modifiers != null && !modifiers.isEmpty())
+		if (modifierPositions != null && !modifierPositions.isEmpty())
 		{
 			tagCompound.setTag("modifierCoords", writePositionListToNBT(modifierPositions));
 		}
-		if (heaters != null && !heaters.isEmpty())
+		if (heaterPositions != null && !heaterPositions.isEmpty())
 		{
 			tagCompound.setTag("heaterCoords", writePositionListToNBT(heaterPositions));
 		}
@@ -247,6 +249,10 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		if (formed)
 		{
 			increaseHeat();
+			if (temperature > maxHeat)
+			{
+				overheat();
+			}
 			if (progress == -1)
 			{
 				if (canStartRefining())
@@ -270,6 +276,11 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		}	
 	}
 	
+	private void overheat()
+	{
+		worldObj.createExplosion((Entity) null, xCoord + 0.5f, yCoord + 0.5f, zCoord + 0.5f, 26, true);
+	}
+
 	private void coolOff()
 	{	
 		temperature -= getCoolOffConstant() * (temperature - getRoomTemp());
@@ -277,9 +288,16 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 
 	private void increaseHeat()
 	{
+		if (heaters == null || heaters.isEmpty())
+		{
+			initInteractorsFromCoords();
+		}
 		for (IAdvancedRefinerHeater heater : heaters)
 		{
-			temperature += heater.getTemperatureIncrease();
+			if (heater != null)
+			{
+				temperature += heater.getTemperatureIncrease();
+			}
 		}
 	}
 	
@@ -299,30 +317,14 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 	}
 	
 	/**
-	 * @return the 'room temperature' depending on the dimension
+	 * @return the 'room temperature' depending on the biome
 	 */
 	public int getRoomTemp()
 	{
-		//TODO make biome-dependent
 		if (roomTemp == VALUE_NOT_DEFINED)
 		{
-			switch (worldObj.provider.dimensionId)
-			{
-				case (-1):
-				{
-					roomTemp = 50;
-					break;
-				}
-				case (1):
-				{
-					roomTemp = -10;
-					break;
-				}
-				default:
-				{
-					roomTemp = 20;
-				}
-			}
+			roomTemp = (int) (worldObj.getBiomeGenForCoords(xCoord, yCoord).temperature * 25f);
+
 		}
 		return roomTemp;
 	}
@@ -351,11 +353,14 @@ public class TileEntityAdvancedRefiner extends TileEntityStoring implements ISyn
 		{
 			for (IMultiblockInput input : inputs)
 			{
-				ItemStack inputStack = input.inputItem(Items.ender_pearl);
-				if (inputStack != null && inventory[INPUT] == null)
+				if (input != null)
 				{
-					inventory[INPUT] = inputStack;
-					return;
+					ItemStack inputStack = input.inputItem(Items.ender_pearl);
+					if (inputStack != null && inventory[INPUT] == null)
+					{
+						inventory[INPUT] = inputStack;
+						return;
+					}
 				}
 			}
 		}

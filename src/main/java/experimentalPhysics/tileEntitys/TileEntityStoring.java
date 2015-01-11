@@ -16,7 +16,7 @@ import net.minecraftforge.common.util.Constants.NBT;
  * @author ColVosch
  *
  */
-public abstract class TileEntityStoring extends TileEntity implements IInventory
+public abstract class TileEntityStoring extends TileEntityBasic implements IInventory
 {
 	protected ItemStack[] inventory;
 	
@@ -64,11 +64,6 @@ public abstract class TileEntityStoring extends TileEntity implements IInventory
 				 inventory[slot] = ItemStack.loadItemStackFromNBT(nbttagcompound);
 			 }
 		 }
-	}
-
-	public Position getPosition()
-	{
-		return new Position(xCoord, yCoord, zCoord);
 	}
 	
 	@Override

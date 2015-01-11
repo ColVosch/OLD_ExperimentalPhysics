@@ -30,7 +30,6 @@ public class TileEntityRefiner extends TileEntityStoring implements ISynchroniza
 	@Override
 	public void readFromNBT(NBTTagCompound tagCompound)
 	{
-		//TODO not synchronizing properly after loading. something like a 'onWorldLoadet' event would be required to fix this
 		super.readFromNBT(tagCompound);
 		currentProcessingTime = tagCompound.getInteger("currentProcessingTime");
 		lit = tagCompound.getBoolean("lit");

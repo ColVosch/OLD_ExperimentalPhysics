@@ -74,13 +74,21 @@ public class TileEntityAdvancedRefinerHeaterFurnace extends TileEntityStoring im
 	{
 		((TileEntityAdvancedRefiner) refinerPos.getTileEntity(worldObj)).registerHeater(this);
 	}                                      
-	                                       
+	
+	@Override
+	public void updateEntity()
+	{
+		if (isBurning())                   
+		{        
+			fuelTimeRemaining --;
+		}
+	}
+	
 	@Override                              
 	public float getTemperatureIncrease()  
 	{                                      
 		if (isBurning())                   
-		{        
-			fuelTimeRemaining --;
+		{
 			return 0.8488738361f;          
 		}                                  
 		else if (inventory[FUEL] != null)  
