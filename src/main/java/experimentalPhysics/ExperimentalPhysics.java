@@ -15,6 +15,9 @@ import experimentalPhysics.guis.GuiHandler;
 import experimentalPhysics.items.ModItems;
 import experimentalPhysics.network.PacketController;
 import experimentalPhysics.recipes.VanillaRecipes;
+import experimentalPhysics.spaceField.SpaceField;
+import experimentalPhysics.spaceField.SpaceFieldManager;
+import net.minecraftforge.common.MinecraftForge;
 
 	@Mod(modid=ExperimentalPhysics.MODID, name="Experimental Physics", version="0.0.2")
 	public class ExperimentalPhysics  
@@ -24,11 +27,16 @@ import experimentalPhysics.recipes.VanillaRecipes;
 		@Instance(MODID)
 		public static ExperimentalPhysics instance;
 		@SidedProxy(clientSide="experimentalPhysics.client.ClientProxy", serverSide="experimentalPhysics.CommonProxy")
-        public static CommonProxy proxy;
-       
+		public static CommonProxy proxy;
+		
+		public static SpaceFieldManager spaceFieldManager;
+		
         @EventHandler
         public void preInit(FMLPreInitializationEvent event) 
         {  
+        	spaceFieldManager = new SpaceFieldManager();
+        	registerEvents();
+        	
         	ExpPhysConfig.init(event.getSuggestedConfigurationFile());
         	Tiers.register();
         	
@@ -48,5 +56,9 @@ import experimentalPhysics.recipes.VanillaRecipes;
         @EventHandler
         public void postInit(FMLPostInitializationEvent event) {}
 
+        private void registerEvents()
+        {			
+			MinecraftForge.EVENT_BUS.register(spaceFieldManager);
+        }
 	}
 
