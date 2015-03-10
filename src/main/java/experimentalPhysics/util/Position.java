@@ -1,6 +1,7 @@
 package experimentalPhysics.util;
 
 import net.minecraft.block.Block;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 
@@ -32,6 +33,11 @@ public class Position
 		return coords;
 	}
 
+	public float getDistance(Position pos)
+	{
+		return (long) Math.sqrt(Math.abs(this.x - pos.x)^2 + Math.abs(this.y - pos.y)^2 + Math.abs(this.z - pos.z));
+	}
+	
 	public TileEntity getTileEntity(IBlockAccess world)
 	{
 		return world.getTileEntity(x, y, z);
@@ -45,5 +51,13 @@ public class Position
 	public int getMeta(IBlockAccess world)
 	{
 		return world.getBlockMetadata(x, y, z);
+	}
+
+	public NBTTagCompound toNBT(NBTTagCompound compound)
+	{
+		compound.setInteger("x", x);
+		compound.setInteger("y", y);
+		compound.setInteger("z", z);
+		return compound;
 	}
 }
