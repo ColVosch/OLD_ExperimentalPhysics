@@ -17,6 +17,7 @@ public final class ModBlocks
 	public static Block advancedRefinerInsertionLock;
 	public static Block advancedRefinerDisplay;
 	public static Block advancedRefinerHeaterFurnace;
+	public static Block interdimensionalDisturber;
 	
 	public static void register()
 	{
@@ -27,7 +28,7 @@ public final class ModBlocks
 		modBlocks.add(advancedRefinerInsertionLock = new BlockAdvancedRefinerInsertionLock());
 		modBlocks.add(advancedRefinerDisplay = new BlockAdvancedRefinerDisplay());
 		modBlocks.add(advancedRefinerHeaterFurnace = new BlockAdvancedRefinerHeaterFurnace());
-		
+		modBlocks.add(interdimensionalDisturber = new BlockInterdimensionalDisturber());
 
 		fillCreativeTab(ExperimentalPhysicsCreativeTab.instance(), modBlocks);		
 	}

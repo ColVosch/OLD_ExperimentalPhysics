@@ -15,6 +15,15 @@ public class Position
 	public int y;
 	public int z;
 	
+	public static Position positionFromNBT(NBTTagCompound compound)
+	{
+		int x, y, z, strength;
+		x = compound.getInteger("x");
+		y = compound.getInteger("y");
+		z = compound.getInteger("z");
+		return new Position(x, y, z);
+	}
+	
 	public Position(int x, int y, int z)
 	{
 		this.x = x;
@@ -53,7 +62,7 @@ public class Position
 		return world.getBlockMetadata(x, y, z);
 	}
 
-	public NBTTagCompound toNBT(NBTTagCompound compound)
+	public NBTTagCompound writeToNBT(NBTTagCompound compound)
 	{
 		compound.setInteger("x", x);
 		compound.setInteger("y", y);
