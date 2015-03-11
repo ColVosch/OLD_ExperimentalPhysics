@@ -8,8 +8,15 @@ import experimentalPhysics.util.Position;
 public class TensionPoint extends Position
 {
 
-	private int strength;
+	public int strength;
 
+	public static TensionPoint tensionPointFromNBT(NBTTagCompound compound)
+	{
+		int strength;
+		strength = compound.getInteger("strength");
+		return new TensionPoint(Position.positionFromNBT(compound), strength);
+	}
+	
 	public TensionPoint(Position pos, int strength)
 	{
 		super(pos.x, pos.y, pos.z);
@@ -22,9 +29,9 @@ public class TensionPoint extends Position
 		return chance > 0 ? chance : 0;
 	}
 
-	public NBTTagCompound toNBT(NBTTagCompound compound)
+	public NBTTagCompound writeToNBT(NBTTagCompound compound)
 	{
-		super.toNBT(compound);
+		super.writeToNBT(compound);
 		compound.setInteger("strength", strength);
 		return compound;
 	}

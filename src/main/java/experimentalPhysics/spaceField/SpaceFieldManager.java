@@ -28,8 +28,7 @@ public class SpaceFieldManager
 		WorldServer world = (WorldServer) saveEvent.world;
 		
 		NBTTagCompound spaceFieldTag = new NBTTagCompound();
-		NBTTagList spaceFieldData = spaceFields.get(world.provider.dimensionId).writeToNBT();
-		spaceFieldTag.setTag("Data", spaceFieldData);
+		spaceFieldTag.setTag("Data", spaceFields.get(world.provider.dimensionId).writeToNBT());
 		
 		File path = (new File(world.getChunkSaveLocation(), "ExperimentalPhysics"));
 		File location = new File(path, "SpaceFieldDIM"+ Integer.toString(world.provider.dimensionId) +".dat");
@@ -71,10 +70,7 @@ public class SpaceFieldManager
 				FMLLog.log(Level.WARN, e, "Unable to read space field data at %s - it will be ignored", location.getAbsolutePath());
 				return;
 			}
-			if (spaceFieldTag.hasKey(Integer.toString(world.provider.dimensionId)))
-			{
-				field.readFromNBT(spaceFieldTag.getTag("Data"));
-			}
+			field.readFromNBT(spaceFieldTag.getTag("Data"));
 		}
 		spaceFields.put(world.provider.dimensionId, field);
 	}
