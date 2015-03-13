@@ -8,11 +8,13 @@ import org.apache.logging.log4j.Level;
 
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
 
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.WorldServer;
+
+import net.minecraftforge.event.entity.player.PlayerUseItemEvent.Tick;
 import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
 
@@ -53,7 +55,7 @@ public class SpaceFieldManager
 		if (!(loadEvent.world instanceof WorldServer)) {return;}
 		
 		WorldServer world = (WorldServer) loadEvent.world;
-		SpaceField field = new SpaceField();
+		SpaceField field = new SpaceField(world.provider.dimensionId);
 		
 		File path = (new File(world.getChunkSaveLocation(), "ExperimentalPhysics"));
 		File location = new File(path, "SpaceFieldDIM"+ Integer.toString(world.provider.dimensionId) +".dat");
@@ -74,18 +76,13 @@ public class SpaceFieldManager
 		}
 		spaceFields.put(world.provider.dimensionId, field);
 	}
+	
+	@SubscribeEvent
+	public void attemptSpaceFieldEvent(WorldTickEvent e)
+	{
+		if (!e.world.isRemote)
+		{
+			spaceFields.get(e.world.provider.dimensionId).tryTriggerSpaceFieldEvent();
+		}
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

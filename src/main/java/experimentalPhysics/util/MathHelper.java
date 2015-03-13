@@ -11,4 +11,17 @@ public class MathHelper
 		}
 		return result;
 	}
+	
+
+	/**Returns the difference of two integer values<br><br>
+	 * <code>
+	 * |a - b|
+	 * </code>
+	 * @param a
+	 * @param b
+	 */
+	public static int diff(int a, int b)
+	{	
+		return Math.abs(a - b);
+	}
 }
