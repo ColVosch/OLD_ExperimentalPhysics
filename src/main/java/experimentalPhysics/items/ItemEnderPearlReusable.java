@@ -47,7 +47,7 @@ public class ItemEnderPearlReusable extends Item
         if (!(player.capabilities.isCreativeMode))
         {
             itemStack.attemptDamageItem(1, itemRand);
-            if (itemStack.getItemDamage() == 8)
+            if (itemStack.getItemDamage() == getMaxDamage())
             {
             	itemStack = new ItemStack(ModItems.enderPearlCore);
             }

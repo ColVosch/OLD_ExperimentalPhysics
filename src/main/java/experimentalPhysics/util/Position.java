@@ -1,5 +1,7 @@
 package experimentalPhysics.util;
 
+import static java.lang.Math.*;
+
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -44,7 +46,8 @@ public class Position
 
 	public float getDistance(Position pos)
 	{
-		return (long) Math.sqrt(Math.abs(this.x - pos.x)^2 + Math.abs(this.y - pos.y)^2 + Math.abs(this.z - pos.z));
+		float dist = (float) sqrt(pow(this.x - pos.x, 2) + pow(this.y - pos.y, 2) + pow(this.z - pos.z, 2));
+		return dist;
 	}
 	
 	public TileEntity getTileEntity(IBlockAccess world)
@@ -68,5 +71,11 @@ public class Position
 		compound.setInteger("y", y);
 		compound.setInteger("z", z);
 		return compound;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "(" + Integer.toString(x) + ", " + Integer.toString(y) + ", " + Integer.toString(z) + ")";
 	}
 }
