@@ -1,9 +1,11 @@
 package experimentalPhysics;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLEvent;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -17,6 +19,7 @@ import experimentalPhysics.network.PacketController;
 import experimentalPhysics.recipes.VanillaRecipes;
 import experimentalPhysics.spaceField.SpaceField;
 import experimentalPhysics.spaceField.SpaceFieldManager;
+import experimentalPhysics.spaceField.events.SpaceFieldEvents;
 import net.minecraftforge.common.MinecraftForge;
 
 	@Mod(modid=ExperimentalPhysics.MODID, name="Experimental Physics", version="0.0.2")
@@ -35,7 +38,9 @@ import net.minecraftforge.common.MinecraftForge;
         public void preInit(FMLPreInitializationEvent event) 
         {  
         	spaceFieldManager = new SpaceFieldManager();
-        	registerEvents();
+        	SpaceFieldEvents.init();
+        	
+        	registerEventHandlers();
         	
         	ExpPhysConfig.init(event.getSuggestedConfigurationFile());
         	Tiers.register();
@@ -56,9 +61,11 @@ import net.minecraftforge.common.MinecraftForge;
         @EventHandler
         public void postInit(FMLPostInitializationEvent event) {}
 
-        private void registerEvents()
+        private void registerEventHandlers()
         {			
 			MinecraftForge.EVENT_BUS.register(spaceFieldManager);
+			
+			FMLCommonHandler.instance().bus().register(spaceFieldManager);
         }
 	}
 

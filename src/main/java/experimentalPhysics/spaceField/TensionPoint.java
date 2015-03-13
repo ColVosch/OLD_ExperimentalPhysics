@@ -20,13 +20,7 @@ public class TensionPoint extends Position
 	public TensionPoint(Position pos, int strength)
 	{
 		super(pos.x, pos.y, pos.z);
-		this.strength = strength;
-	}
-
-	public float getSpaceEventChance(Position pos)
-	{
-		float chance = (float) (-(strength / 1) * Math.pow(getDistance(pos), 2) + 1);
-		return chance > 0 ? chance : 0;
+		this.strength = strength < 50 ? strength : 50;
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound)
