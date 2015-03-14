@@ -18,3 +18,4 @@ gradle
 .gradle
 /bin/
 gradlew.bat
+.classpath
