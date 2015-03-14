@@ -17,12 +17,14 @@ public final class ModItems
 	public static Item enderPearlReusable;
 	public static Item gunpowderFuelingCell;
 	public static Item itemBlockAdvancedRefiner;
+	public static Item itemTensionSensor;
 	
 	public static void register()
 	{
 		List<Item> modItems = new ArrayList<Item>();
 		
 		modItems.add(enderPearlReusable = new ItemEnderPearlReusable());
+		modItems.add(itemTensionSensor = new ItemTensionSensor());
 		
 		modItems.add(gunpowderFuelingCell = new Item().setUnlocalizedName("itemGunpowderFuelingCell").setTextureName(ExperimentalPhysics.MODID+":"+"gunpowderFuelingCell"));
 		GameRegistry.registerItem(gunpowderFuelingCell, "itemGunpowderFuelingCell");

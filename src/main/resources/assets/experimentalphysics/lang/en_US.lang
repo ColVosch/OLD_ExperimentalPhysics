@@ -2,6 +2,8 @@ itemGroup.experimentalPhysics=Experimental Physics
 
 propperty.tier1MaxHeat.display=Iron tier maximum heat
 propperty.tier1MaxHeat.comment=The highest temperature at witch the iron tech tier is able to operate
+propperty.spaceTensionRangeAmplifier.display=Tension Amplifier
+propperty.spaceTensionRangeAmplifier.comment=The larger this value, the more impact do tension points have
 
 container.refiner=Refiner
 container.advancedRefinerInsertionLock=Advanced Refiner Insertion Lock
@@ -11,6 +13,7 @@ message.refinerCoreToClose=Advanced Refiner Cores have to be placed at least 3 b
 item.itemEnderPearlCore.name=Ender Pearl Core
 item.itemEnderPearlReusable.name=Reusable Ender Pearl
 item.itemGunpowderFuelingCell.name=Gunpowder Fueling Cell
+item.itemTensionSensor.name=Tension Sensor
 
 tile.blockRefiner.name=Refiner
 tile.blockAdvancedRefinerCasing.name=Advanced Refiner Casing
